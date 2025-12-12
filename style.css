@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap');
 
 :root {
-    --bg-header:    #4B3929;
+    --bg-header:    #785e48;
     --accent:       #9A8468;
     --text:         #F6F0EE;
-    --sidebar-width: 250px;
+    --sidebar-width: 200px;
     
     /* Glass Effect Colors */
-    --glass-bg:     rgba(40, 30, 20, 0.85); /* Dark Brown with transparency */
-    --paper-bg:     rgba(244, 236, 216, 0.95); /* Paper color with slight transparency */
+    --glass-bg:     rgba(76, 73, 70, 0.85); /* Dark Brown with transparency */
+    --paper-bg:     rgba(212, 199, 165, 0.95); /* Paper color with slight transparency */
     --paper-text:   #25190D;
 }
 
@@ -65,7 +65,7 @@ html {
     background-color: var(--bg-header); /* Solid header for contrast */
     z-index: 100;
     transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0.2px 10px rgba(0,0,0,0.5);
     
     /* Initial Top Bar State */
     width: 100%;
@@ -151,14 +151,14 @@ body.sidebar-active #main-content {
     background: var(--glass-bg);
     backdrop-filter: blur(5px); /* Blurs the image behind the text */
     -webkit-backdrop-filter: blur(5px);
-    padding: 40px;
+    padding: 10px;
     border-radius: 4px;
     border: 1px solid rgba(255,255,255,0.1);
     max-width: 800px;
 }
 
 .section-header {
-    margin-bottom: 20px;
+    margin-bottom:10px;
     display: inline-block; /* Only wrap the text, not full width */
 }
 
@@ -172,7 +172,7 @@ h2 {
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 10px;
 }
 
 .menu-card {
@@ -204,4 +204,106 @@ footer {
     padding: 40px;
     text-align: center;
     background: var(--bg-header); /* Solid footer */
+}
+
+/* --- STATUS BAR (Revised) --- */
+.status-bar {
+    position: fixed;
+    top: 0;
+    z-index: 95; /* Sits above content, but sidebar (z-100) will cover its left edge if needed */
+    height: 60px; /* Fixed height for consistency */
+    
+    background: rgba(75, 57, 41, 0.98);
+    border-bottom: 1px solid var(--accent);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+
+    /* ANIMATION SETTINGS */
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    
+    /* DEFAULT STATE (Hidden in Hero Mode) */
+    left: 0;
+    width: 100%;
+    transform: translateY(-100%); /* Hides it just above the viewport */
+}
+
+/* ACTIVE STATE (When Scrolling) */
+body.sidebar-active .status-bar {
+    transform: translateY(0); /* Slide down instantly */
+    left: var(--sidebar-width); /* Push it to the right of the sidebar */
+    width: calc(100% - var(--sidebar-width)); /* Fill the remaining width */
+}
+
+/* --- Status Bar Internal Styling --- */
+.status-text {
+    color: var(--text);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.dot-indicator {
+    height: 10px;
+    width: 10px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 5px #4CAF50;
+}
+
+.status-bar.closed .dot-indicator {
+    background-color: #f44336;
+    box-shadow: 0 0 5px #f44336;
+}
+
+#view-all-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 5px 15px;
+    cursor: pointer;
+    font-family: inherit;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    transition: all 0.3s;
+}
+
+#view-all-btn:hover {
+    background: var(--accent);
+    color: var(--bg-header);
+}
+
+/* Ensure Main Content padding accounts for the fixed status bar */
+.content-section {
+    padding-top: 100px; /* Extra padding so titles don't get hidden behind the status bar */
+}
+
+/* --- DYNAMIC VISIBILITY CLASSES --- */
+/* By default, we show everything. JS adds these classes to HIDE things. */
+
+.section-hidden {
+    display: none;
+}
+
+/* When the user clicks "View Full Menu", we override the hidden class */
+body.show-all-menus .section-hidden {
+    display: block !important;
+    opacity: 0.6; /* Dim them slightly to show they aren't active */
+}
+/* Add a label to dimmed sections */
+body.show-all-menus .section-hidden h2::after {
+    content: " (Not Currently Serving)";
+    font-size: 0.5em;
+    opacity: 0.7;
+    vertical-align: middle;
 }
