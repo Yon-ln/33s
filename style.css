@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap');
+
+:root {
+    --bg-header:    #4B3929;
+    --accent:       #9A8468;
+    --text:         #F6F0EE;
+    --sidebar-width: 250px;
+    
+    /* Glass Effect Colors */
+    --glass-bg:     rgba(40, 30, 20, 0.85); /* Dark Brown with transparency */
+    --paper-bg:     rgba(244, 236, 216, 0.95); /* Paper color with slight transparency */
+    --paper-text:   #25190D;
+}
+
+body {
+    margin: 0;
+    /* No solid background color so the fixed image shows through */
+    color: var(--text);
+    font-family: 'Roboto Condensed', sans-serif;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* --- 1. HERO CYCLE (Fixed at back) --- */
+#hero-cycle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1; /* Behind everything */
+}
+
+/* Dark overlay so white text is readable on top of photos */
+.overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3); 
+    z-index: 1;
+}
+
+.slideshow-container {
+    width: 100%;
+    height: 100%;
+}
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s;
+}
+.slide.active { opacity: 1; }
+
+/* --- 2. HEADER --- */
+#main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--bg-header); /* Solid header for contrast */
+    z-index: 100;
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    
+    /* Initial Top Bar State */
+    width: 100%;
+    height: 70px;
+    border-bottom: 1px solid var(--accent);
+}
+
+.header-inner {
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.6s;
+}
+
+/* Sidebar State */
+body.sidebar-active #main-header {
+    width: var(--sidebar-width);
+    height: 100vh;
+    border-bottom: none;
+    border-right: 2px solid var(--accent);
+}
+
+body.sidebar-active .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 40px;
+}
+
+body.sidebar-active .logo-area {
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--accent);
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+#main-nav { display: flex; gap: 20px; }
+body.sidebar-active #main-nav { flex-direction: column; width: 100%; gap: 15px; }
+
+.nav-item {
+    text-decoration: none;
+    color: var(--text);
+    text-transform: uppercase;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+.nav-item:hover, .nav-item.active { color: var(--accent); }
+
+.nav-label { display: none; color: #888; font-size: 0.8em; text-transform: uppercase;}
+.sub-nav { display: none; }
+
+body.sidebar-active .nav-label { display: block; margin-bottom: 5px;}
+body.sidebar-active .sub-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent);
+}
+
+/* --- 3. MAIN CONTENT --- */
+#main-content {
+    position: relative;
+    z-index: 10;
+    margin-top: 100vh; /* Pushes content below first screen */
+    transition: margin-left 0.6s;
+}
+
+body.sidebar-active #main-content {
+    margin-left: var(--sidebar-width);
+}
+
+.content-section {
+    min-height: 80vh; 
+    padding: 60px 40px;
+    /* No background color here! Transparency is key */
+}
+
+/* Glass Panel Style for About/Contact Cards */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(5px); /* Blurs the image behind the text */
+    -webkit-backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+    max-width: 800px;
+}
+
+.section-header {
+    margin-bottom: 20px;
+    display: inline-block; /* Only wrap the text, not full width */
+}
+
+h2 {
+    color: var(--accent);
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+/* Menu Grid */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.menu-card {
+    background-color: var(--paper-bg); /* Paper color */
+    color: var(--paper-text);
+    padding: 20px;
+    border-radius: 2px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.menu-card h3 {
+    margin: 0 0 10px 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted #888;
+    color: #4B3929;
+}
+
+.map-placeholder {
+    background: rgba(255,255,255,0.1);
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--accent);
+}
+
+footer {
+    padding: 40px;
+    text-align: center;
+    background: var(--bg-header); /* Solid footer */
+}
