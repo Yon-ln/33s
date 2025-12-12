@@ -33,12 +33,12 @@
         </div>
     </header>
 
-    <div id="service-status-bar" class="status-bar">
-        <div class="status-text">
+    <div id="service-status-bar" class="status-pill">
+        <div class="status-content">
             <span class="dot-indicator"></span>
-            <span id="current-status-msg">Checking time...</span>
+            <span id="current-status-msg">Checking...</span>
         </div>
-        <button id="view-all-btn" onclick="toggleFullMenu()">View Full Menu</button>
+        <button id="view-all-btn" onclick="toggleFullMenu()">View Full</button>
     </div>
 
     <div id="hero-cycle">
@@ -46,10 +46,18 @@
         <div class="slideshow-container">
             <div class="dot-container"></div>
         </div>
+
+        <div class="hero-updates glass-panel-sm">
+            <h3>Latest News</h3>
+            <div class="update-content">
+                <p><strong>🎵 Live Jazz this Friday!</strong></p>
+                <p>Join us from 7pm for cocktails and smooth tunes.</p>
+                <a href="https://www.instagram.com/33s_theoldgrocerystore/" target="_blank" class="insta-link">View on Instagram &rarr;</a>
+            </div>
+        </div>
     </div>
 
     <main id="main-content">
-
         <section id="brunch" class="content-section menu-section" data-category="Brunch">
             <div class="section-header glass-panel"><h2>Brunch & Coffee</h2></div>
             <div class="menu-grid"></div>
@@ -61,29 +69,29 @@
         </section>
 
         <section id="wines" class="content-section menu-section" data-category="Wines">
-            <div class="section-header glass-panel"><h2>Wines</h2></div>
+             <div class="section-header glass-panel"><h2>Wines</h2></div>
             <div class="menu-grid"></div>
         </section>
 
         <section id="beers" class="content-section menu-section" data-category="Beers">
-            <div class="section-header glass-panel"><h2>Beers</h2></div>
+             <div class="section-header glass-panel"><h2>Beers</h2></div>
             <div class="menu-grid"></div>
         </section>
 
         <section id="dinner" class="content-section menu-section" data-category="Dinner">
-            <div class="section-header glass-panel"><h2>Dinner</h2></div>
+             <div class="section-header glass-panel"><h2>Dinner</h2></div>
             <div class="menu-grid"></div>
         </section>
-
+        
         <section id="softs" class="content-section menu-section" data-category="Softs">
-            <div class="section-header glass-panel"><h2>Softs</h2></div>
+             <div class="section-header glass-panel"><h2>Softs</h2></div>
             <div class="menu-grid"></div>
         </section>
 
         <section id="about" class="content-section">
             <div class="card glass-panel">
                 <h2>About Us</h2>
-                <p>AAA</p>
+                <p>Built by Emilio & Mario.</p>
             </div>
         </section>
 
@@ -91,24 +99,33 @@
             <div class="card glass-panel">
                 <h2>Locations</h2>
                 <div class="map-placeholder">
-                   <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2479.2692309777267!2d-0.1002192233754798!3d51.58162887183037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b22637148a1%3A0xbfbbd07f4cc55d2d!2s33%E2%80%99s%20The%20Old%20Grocery%20Store!5e0!3m2!1sen!2suk!4v1765552796895!5m2!1sen!2suk" width="100%" height="100%" style="border:0;" loading="lazy"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2479.2692303313233!2d-0.09764429733044087!3d51.58162888367816!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b22637148a1%3A0xbfbbd07f4cc55d2d!2s33%E2%80%99s%20The%20Old%20Grocery%20Store!5e0!3m2!1sen!2suk!4v1765557980997!5m2!1sen!2suk" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </section>
 
         <section id="contact" class="content-section">
             <div class="card glass-panel">
-                <h2>Contact Us</h2>
-                <p>33 Salisbury Rd, Harringay Ladder, London N4 1JY</p>
+                <h2>Contact</h2>
                 <p>33stheoldgrocery@gmail.com</p>
+                <p>+44 07405206071</p>
             </div>
         </section>
 
-        <footer>
-            <p>© 2024 33s The Old Grocery Store.</p>
-        </footer>
-
+        <footer><p>© 2025 The Old Grocery Store.</p></footer>
     </main>
+
+    <div id="image-modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img id="modal-img" src="" alt="Menu Item">
+            <div class="modal-text">
+                <h3 id="modal-title">Title</h3>
+                <p id="modal-desc">Description</p>
+                <p id="modal-price" class="price">Price</p>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="func.js"></script>

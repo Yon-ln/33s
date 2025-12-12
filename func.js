@@ -1,3 +1,21 @@
+// --- MODAL FUNCTIONS ---
+function openModal(item) {
+    // Only open if there is an image URL in the data
+    if (!item.image || item.image.trim() === "") return; 
+
+    document.getElementById('modal-img').src = item.image;
+    document.getElementById('modal-title').textContent = item.name;
+    document.getElementById('modal-desc').textContent = item.description;
+    document.getElementById('modal-price').textContent = item.price;
+    
+    const modal = document.getElementById('image-modal');
+    modal.classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('image-modal').classList.remove('open');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. CONFIGURATION ---
@@ -18,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
         
         const statusMsg = document.getElementById('current-status-msg');
-        const statusBar = document.querySelector('.status-bar');
+        const statusBar = document.querySelector('.status-pill');
         
         // Sections
         const secBrunch = document.getElementById('brunch');
@@ -141,27 +159,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
 
-    // --- 6. CSV MENU PARSER ---
-    Papa.parse('menu.csv', {
-        download: true, header: true, skipEmptyLines: true,
-        complete: function(results) {
-            const menuData = results.data;
-            document.querySelectorAll('.menu-section').forEach(section => {
-                const category = section.dataset.category;
-                const grid = section.querySelector('.menu-grid');
-                const items = menuData.filter(i => i.category && i.category.trim().toLowerCase() === category.toLowerCase());
-                
-                if(items.length > 0) {
-                    items.forEach(item => {
+// --- 6. CSV MENU PARSER ---
+Papa.parse('menu.csv', {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+        const menuData = results.data;
+        
+        document.querySelectorAll('.menu-section').forEach(section => {
+            const category = section.dataset.category;
+            const existingHeader = section.querySelector('.section-header');
+            section.innerHTML = '';
+            if(existingHeader) section.appendChild(existingHeader);
+
+            const items = menuData.filter(i => i.category && i.category.trim().toLowerCase() === category.toLowerCase());
+            
+            if(items.length > 0) {
+                const groups = {};
+                items.forEach(item => {
+                    const sub = item.subcategory ? item.subcategory.trim() : 'General';
+                    if(!groups[sub]) groups[sub] = [];
+                    groups[sub].push(item);
+                });
+
+                for (const [subcatName, subItems] of Object.entries(groups)) {
+                    if(subcatName !== 'General' && subcatName !== '') {
+                        const subTitle = document.createElement('h3');
+                        subTitle.classList.add('subcategory-title');
+                        subTitle.textContent = subcatName;
+                        section.appendChild(subTitle);
+                    }
+
+                    const grid = document.createElement('div');
+                    grid.classList.add('menu-grid');
+                    
+                    subItems.forEach(item => {
                         const card = document.createElement('div');
                         card.classList.add('menu-card');
-                        card.innerHTML = `<h3>${item.name} <span class="price">${item.price}</span></h3><p>${item.description}</p>`;
+                        
+                        // Add click event to open modal
+                        card.addEventListener('click', () => openModal(item));
+
+                        // Add visual hint if image exists
+                        const imageIcon = (item.image && item.image.trim() !== "") ? ' 📷' : '';
+
+                        card.innerHTML = `
+                            <h3>${item.name}${imageIcon} <span class="price">${item.price}</span></h3>
+                            <p>${item.description}</p>
+                        `;
                         grid.appendChild(card);
                     });
+                    section.appendChild(grid);
                 }
-            });
-            updateMenuAvailability(); 
-        }
-    });
+            }
+        });
+        updateMenuAvailability(); 
+    }
+});
 });
 
