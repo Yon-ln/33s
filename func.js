@@ -1,3 +1,6 @@
+// --- CONFIGURATION ---
+const apiBaseUrl = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
+
 // --- MODAL FUNCTIONS ---
 function openModal(item) {
     // Only open if there is an image URL in the data
@@ -18,7 +21,7 @@ function closeModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. CONFIGURATION ---
+    // --- 1. TIME & MENU CONFIGURATION ---
     const CONFIG = {
         brunchStart: 9 * 60 + 30,  // 09:30
         coffeeStart: 14 * 60 + 30, // 14:30
@@ -117,12 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { rootMargin: '-30% 0px -60% 0px' });
     document.querySelectorAll('section').forEach(section => observer.observe(section));
 
-    // --- 5. DYNAMIC SLIDESHOW (From JSON) ---
+    // --- 5. DYNAMIC SLIDESHOW ---
     function startSlideshow(images) {
         const slideshowContainer = document.querySelector('.slideshow-container');
         if(!slideshowContainer || images.length === 0) return;
 
-        // Clear any existing slides
         slideshowContainer.innerHTML = ''; 
 
         images.forEach((url, i) => {
@@ -136,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let idx = 0;
         const slides = document.querySelectorAll('.slide');
         
-        // Only cycle if we have more than 1 image
         if(slides.length > 1) {
             setInterval(() => {
                 slides[idx].classList.remove('active');
@@ -146,76 +147,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // FETCH THE IMAGE LIST
     fetch('slideshow.json')
         .then(response => response.json())
-        .then(data => {
-            startSlideshow(data);
-        })
+        .then(data => startSlideshow(data))
         .catch(error => {
             console.error("Could not load slideshow.json...", error);
-            // MAKE SURE THIS MATCHES EXACTLY TOO
             startSlideshow(['Images/Cycle/Old.jpg']); 
         });
 
-
-// --- 6. CSV MENU PARSER ---
-Papa.parse('menu.csv', {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-        const menuData = results.data;
-        
-        document.querySelectorAll('.menu-section').forEach(section => {
-            const category = section.dataset.category;
-            const existingHeader = section.querySelector('.section-header');
-            section.innerHTML = '';
-            if(existingHeader) section.appendChild(existingHeader);
-
-            const items = menuData.filter(i => i.category && i.category.trim().toLowerCase() === category.toLowerCase());
+    // --- 6. API MENU FETCHING (REPLACES CSV) ---
+    async function loadAndRenderMenu() {
+        try {
+            console.log("Fetching menu from Azure API...");
+            // Fetch from your .NET API
+            const response = await fetch(`${apiBaseUrl}/api/menu`);
             
-            if(items.length > 0) {
-                const groups = {};
-                items.forEach(item => {
-                    const sub = item.subcategory ? item.subcategory.trim() : 'General';
-                    if(!groups[sub]) groups[sub] = [];
-                    groups[sub].push(item);
-                });
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            
+            const menuData = await response.json();
+            console.log("Menu loaded:", menuData);
 
-                for (const [subcatName, subItems] of Object.entries(groups)) {
-                    if(subcatName !== 'General' && subcatName !== '') {
-                        const subTitle = document.createElement('h3');
-                        subTitle.classList.add('subcategory-title');
-                        subTitle.textContent = subcatName;
-                        section.appendChild(subTitle);
-                    }
+            // RENDER LOGIC (Adapted from your old CSV parser)
+            document.querySelectorAll('.menu-section').forEach(section => {
+                const category = section.dataset.category;
+                const existingHeader = section.querySelector('.section-header');
+                
+                // Clear old content but keep the header
+                section.innerHTML = '';
+                if(existingHeader) section.appendChild(existingHeader);
 
-                    const grid = document.createElement('div');
-                    grid.classList.add('menu-grid');
-                    
-                    subItems.forEach(item => {
-                        const card = document.createElement('div');
-                        card.classList.add('menu-card');
-                        
-                        // Add click event to open modal
-                        card.addEventListener('click', () => openModal(item));
-
-                        // Add visual hint if image exists
-                        const imageIcon = (item.image && item.image.trim() !== "") ? ' 📷' : '';
-
-                        card.innerHTML = `
-                            <h3>${item.name}${imageIcon} <span class="price">${item.price}</span></h3>
-                            <p>${item.description}</p>
-                        `;
-                        grid.appendChild(card);
+                // Filter data for this section
+                // Note: We use .toLowerCase() to match C# data to HTML dataset
+                const items = menuData.filter(i => 
+                    i.category && i.category.trim().toLowerCase() === category.toLowerCase()
+                );
+                
+                if(items.length > 0) {
+                    // Group by Subcategory
+                    const groups = {};
+                    items.forEach(item => {
+                        const sub = item.subcategory ? item.subcategory.trim() : 'General';
+                        if(!groups[sub]) groups[sub] = [];
+                        groups[sub].push(item);
                     });
-                    section.appendChild(grid);
-                }
-            }
-        });
-        updateMenuAvailability(); 
-    }
-});
-});
 
+                    // Create HTML elements
+                    for (const [subcatName, subItems] of Object.entries(groups)) {
+                        if(subcatName !== 'General' && subcatName !== '') {
+                            const subTitle = document.createElement('h3');
+                            subTitle.classList.add('subcategory-title');
+                            subTitle.textContent = subcatName;
+                            section.appendChild(subTitle);
+                        }
+
+                        const grid = document.createElement('div');
+                        grid.classList.add('menu-grid');
+                        
+                        subItems.forEach(item => {
+                            const card = document.createElement('div');
+                            card.classList.add('menu-card');
+                            
+                            // Click to open modal
+                            card.addEventListener('click', () => openModal(item));
+
+                            // Check for image
+                            const imageIcon = (item.image && item.image.trim() !== "") ? ' 📷' : '';
+
+                            card.innerHTML = `
+                                <h3>${item.name}${imageIcon} <span class="price">${item.price}</span></h3>
+                                <p>${item.description}</p>
+                            `;
+                            grid.appendChild(card);
+                        });
+                        section.appendChild(grid);
+                    }
+                }
+            });
+
+            // Re-run time check now that items are in the DOM
+            updateMenuAvailability();
+
+        } catch (error) {
+            console.error("Failed to load menu from API:", error);
+            // Optional: Add a fallback here or alert the user
+            document.getElementById('current-status-msg').textContent = "Error loading menu. Please refresh.";
+        }
+    }
+
+    // Trigger the load
+    loadAndRenderMenu();
+
+});
