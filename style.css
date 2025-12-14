@@ -105,9 +105,10 @@ body.sidebar-active .hero-updates {
     transition: all var(--transition-speed);
 }
 
-.logo-area h1 {
+.logo-area h1 a {
     font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px;
     color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin: 0;
+    text-decoration: none;
 }
 
 /* SIDEBAR MODE */
