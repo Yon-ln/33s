@@ -1,5 +1,6 @@
 // --- CONFIGURATION ---
-const apiBaseUrl = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
+const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
+const MENU_URL = `${API_BASE}/api/menu`;
 
 // --- MODAL FUNCTIONS ---
 function openModal(item) {
@@ -160,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log("Fetching menu from Azure API...");
             // Fetch from your .NET API
-            const response = await fetch(`${apiBaseUrl}/api/menu`);
+            const response = await fetch(`${MENU_URL}?t=${Date.now()}`);
             
             if (!response.ok) throw new Error(`API Error: ${response.status}`);
             

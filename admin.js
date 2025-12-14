@@ -26,7 +26,7 @@ async function loadItems() {
         }
 
         data.forEach(item => {
-            const card = document.createElement('div');
+            const card = document.createElement('div');//g
             card.className = 'card';
             
             // Use a placeholder if image is missing/empty
@@ -42,7 +42,7 @@ async function loadItems() {
                 <div class="card-body">
                     <div class="card-header">
                         <h3 class="card-title">${item.name}</h3>
-                        <span class="card-price">$${item.price}</span>
+                        <span class="card-price">${item.price}</span>
                     </div>
                     <p class="card-desc">
                         <strong>${item.category}</strong> <br> 
@@ -146,7 +146,7 @@ form.addEventListener('submit', async (e) => {
             id: id ? parseInt(id) : 0,
             name: nameInput,
             description: document.getElementById('item-desc').value,
-            price: parseFloat(document.getElementById('item-price').value),
+            price: document.getElementById('item-price').value,
             category: document.getElementById('item-category').value,
             image: finalImageUrl
         };
