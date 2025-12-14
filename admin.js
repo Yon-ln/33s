@@ -30,9 +30,11 @@ async function loadItems() {
             card.className = 'card';
             
             // Use a placeholder if image is missing/empty
-            const imgUrl = (item.image && item.image.trim() !== "") 
-                ? item.image 
-                : 'https://via.placeholder.com/300?text=No+Image';
+        const link = item.imageUrl || item.image; 
+
+        const imgUrl = (link && link.trim() !== "") 
+            ? link 
+            : 'https://via.placeholder.com/300?text=No+Image';
 
             // Escape quotes for the onclick JSON
             const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
@@ -77,8 +79,10 @@ function openModal(item = null) {
         document.getElementById('item-desc').value = item.description || "";
         document.getElementById('item-price').value = item.price;
         document.getElementById('item-category').value = item.category || "";
-        document.getElementById('item-image-url').value = item.image || "";
-        previewImg.src = item.image || "";
+        const validLink = item.imageUrl || item.image || "";
+
+        document.getElementById('item-image-url').value = validLink;
+        previewImg.src = validLink;
     } else {
         // Create Mode
         document.getElementById('modal-title').innerText = "New Item";

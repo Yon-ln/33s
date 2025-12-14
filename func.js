@@ -5,9 +5,9 @@ const MENU_URL = `${API_BASE}/api/menu`;
 // --- MODAL FUNCTIONS ---
 function openModal(item) {
     // Only open if there is an image URL in the data
-    if (!item.image || item.image.trim() === "") return; 
+    if (!item.imageUrl || item.imageUrl.trim() === "") return; 
 
-    document.getElementById('modal-img').src = item.image;
+    document.getElementById('modal-img').src = item.imageUrl;
     document.getElementById('modal-title').textContent = item.name;
     document.getElementById('modal-desc').textContent = item.description;
     document.getElementById('modal-price').textContent = item.price;
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             card.addEventListener('click', () => openModal(item));
 
                             // Check for image
-                            const imageIcon = (item.image && item.image.trim() !== "") ? ' 📷' : '';
+                            const imageIcon = (item.imageUrl && item.imageUrl.trim() !== "") ? ' 📷' : '';
 
                             card.innerHTML = `
                                 <h3>${item.name}${imageIcon} <span class="price">${item.price}</span></h3>
