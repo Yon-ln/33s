@@ -165,7 +165,6 @@ body.sidebar-active .hero-updates { opacity: 0; transform: translateY(20px); poi
     body.sidebar-active #main-header {
         height: 70px; width: 100%; left: 0; 
         border: none;
-        background: var(--glass-heavy); 
         border-bottom: 1px solid var(--border-light);
     }
     
