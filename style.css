@@ -150,6 +150,9 @@ body.sidebar-active .sub-nav {
     position: fixed;
     top: 30px; right: 40px; 
     z-index: 110;
+
+    max-width: 40%;
+    min-width: 25vh;
     
     background: var(--glass-heavy);
     backdrop-filter: blur(10px);
@@ -174,7 +177,8 @@ body.sidebar-active .status-pill {
     font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
 }
 .dot-indicator {
-    height: 8px; width: 8px; background-color: #4CAF50;
+    height: 8px;  background-color: #4CAF50;
+    aspect-ratio: 1;
     border-radius: 50%; box-shadow: 0 0 8px #4CAF50;
 }
 .status-pill.closed .dot-indicator { background-color: #f44336; box-shadow: 0 0 8px #f44336; }

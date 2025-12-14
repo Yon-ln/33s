@@ -148,7 +148,7 @@ form.addEventListener('submit', async (e) => {
             description: document.getElementById('item-desc').value,
             price: document.getElementById('item-price').value,
             category: document.getElementById('item-category').value,
-            image: finalImageUrl
+            imageUrl: finalImageUrl
         };
 
         // STEP C: Send to API
