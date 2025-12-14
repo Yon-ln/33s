@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. CONFIGURATION ---
-    const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
+    const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net"; //
     const MENU_URL = `${API_BASE}/api/menu`;
     
     // Time Configuration (Minutes from midnight)

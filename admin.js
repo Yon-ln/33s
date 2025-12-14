@@ -1,5 +1,5 @@
 // 1. CONFIGURATION
-const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net/api"; 
+const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net/api";  //
 const MENU_URL = `${API_BASE}/menu`;
 const UPLOAD_URL = `${API_BASE}/Upload`;
 
