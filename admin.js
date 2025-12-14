@@ -148,7 +148,10 @@ form.addEventListener('submit', async (e) => {
             description: document.getElementById('item-desc').value,
             price: document.getElementById('item-price').value,
             category: document.getElementById('item-category').value,
-            imageUrl: finalImageUrl
+            image: finalImageUrl,
+            imageUrl: finalImageUrl,
+            img: finalImageUrl,
+            picture: finalImageUrl
         };
 
         // STEP C: Send to API
@@ -198,11 +201,9 @@ async function deleteItem(id) {
     }
 }
 
-// --- 7. IMAGE UPLOAD HELPER ---
 async function uploadImageToBackend(file, itemName) {
     const formData = new FormData();
     formData.append('file', file);
-    // Send the item name so the C# controller can use it for the filename
     formData.append('itemName', itemName || "menuItem"); 
 
     const res = await fetch(UPLOAD_URL, {
@@ -215,6 +216,11 @@ async function uploadImageToBackend(file, itemName) {
     }
     
     const data = await res.json();
-    // Expecting backend to return { url: "..." }
-    return data.url; 
+    
+    // --- DEBUG LOG ---
+    console.log("SERVER UPLOAD RESPONSE:", data); 
+    // ----------------
+    
+    // TRY ALL OPTIONS: Catch 'url', 'Url', or 'link'
+    return data.url || data.Url || data.link || data.imageUrl; 
 }
