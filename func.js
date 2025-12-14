@@ -1,28 +1,11 @@
-// --- CONFIGURATION ---
-const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
-const MENU_URL = `${API_BASE}/api/menu`;
-
-// --- MODAL FUNCTIONS ---
-function openModal(item) {
-    // Only open if there is an image URL in the data
-    if (!item.imageUrl || item.imageUrl.trim() === "") return; 
-
-    document.getElementById('modal-img').src = item.imageUrl;
-    document.getElementById('modal-title').textContent = item.name;
-    document.getElementById('modal-desc').textContent = item.description;
-    document.getElementById('modal-price').textContent = item.price;
-    
-    const modal = document.getElementById('image-modal');
-    modal.classList.add('open');
-}
-
-function closeModal() {
-    document.getElementById('image-modal').classList.remove('open');
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. TIME & MENU CONFIGURATION ---
+    // --- 1. CONFIGURATION ---
+    const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net";
+    const MENU_URL = `${API_BASE}/api/menu`;
+    
+    // Time Configuration (Minutes from midnight)
+    // Example: 9:30 = 9 * 60 + 30 = 570
     const CONFIG = {
         brunchStart: 9 * 60 + 30,  // 09:30
         coffeeStart: 14 * 60 + 30, // 14:30
@@ -30,86 +13,95 @@ document.addEventListener('DOMContentLoaded', () => {
         closeTime:   22 * 60 + 30  // 22:30
     };
 
-    let isFullMenuVisible = false;
+    const body = document.body;
+    const viewAllBtn = document.getElementById('view-all-btn');
+    const statusMsg = document.getElementById('current-status-msg');
+    const statusBar = document.querySelector('.status-pill');
 
-    // --- 2. TIME-BASED MENU LOGIC ---
+    // --- 2. MENU AVAILABILITY LOGIC ---
     function updateMenuAvailability() {
-        if(isFullMenuVisible) return;
+        // If user clicked "View Full", stop filtering
+        if (body.classList.contains('show-all-menus')) {
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('section-hidden'));
+            statusMsg.textContent = "Viewing All Menus";
+            statusBar.classList.remove('closed');
+            return;
+        }
 
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
         
-        const statusMsg = document.getElementById('current-status-msg');
-        const statusBar = document.querySelector('.status-pill');
-        
-        // Sections
-        const secBrunch = document.getElementById('brunch');
-        const secCocktails = document.getElementById('cocktails');
-        const secWines = document.getElementById('wines');
-        const secBeers = document.getElementById('beers');
-        const secDinner = document.getElementById('dinner');
-        const secSofts = document.getElementById('softs');
+        // Helper to toggle visibility
+        const toggle = (id, shouldShow) => {
+            const el = document.getElementById(id);
+            if(el) {
+                if(shouldShow) el.classList.remove('section-hidden');
+                else el.classList.add('section-hidden');
+            }
+        };
 
-        const hide = (el) => { if(el) el.classList.add('section-hidden'); };
-        const show = (el) => { if(el) el.classList.remove('section-hidden'); };
+        // Determine Service State
+        let state = 'closed';
+        if (currentMinutes >= CONFIG.brunchStart && currentMinutes < CONFIG.coffeeStart) state = 'brunch';
+        else if (currentMinutes >= CONFIG.coffeeStart && currentMinutes < CONFIG.dinnerStart) state = 'coffee';
+        else if (currentMinutes >= CONFIG.dinnerStart && currentMinutes < CONFIG.closeTime) state = 'dinner';
 
-        // 1. Brunch Mode
-        if (currentMinutes >= CONFIG.brunchStart && currentMinutes < CONFIG.coffeeStart) {
-            if(statusMsg) statusMsg.textContent = "Serving Now: Brunch & Coffee";
-            if(statusBar) statusBar.classList.remove('closed');
-            show(secBrunch); show(secSofts);
-            hide(secCocktails); hide(secDinner); hide(secWines); hide(secBeers);
-        }
-        // 2. Coffee Gap
-        else if (currentMinutes >= CONFIG.coffeeStart && currentMinutes < CONFIG.dinnerStart) {
-            if(statusMsg) statusMsg.textContent = "Kitchen Closed (Coffee Only)";
-            if(statusBar) statusBar.classList.add('closed');
-            hide(secBrunch); hide(secDinner); hide(secCocktails); hide(secWines); hide(secBeers);
-            show(secSofts);
-        }
-        // 3. Dinner Mode
-        else if (currentMinutes >= CONFIG.dinnerStart && currentMinutes < CONFIG.closeTime) {
-            if(statusMsg) statusMsg.textContent = "Serving Now: Dinner & Cocktails";
-            if(statusBar) statusBar.classList.remove('closed');
-            hide(secBrunch);
-            show(secCocktails); show(secDinner); show(secWines); show(secBeers); show(secSofts);
-        }
-        // 4. Closed
-        else {
-            if(statusMsg) statusMsg.textContent = "Currently Closed";
-            if(statusBar) statusBar.classList.add('closed');
-            hide(secBrunch); hide(secDinner); hide(secCocktails);
+        // Apply State
+        switch(state) {
+            case 'brunch':
+                statusMsg.textContent = "Serving: Brunch & Coffee";
+                statusBar.classList.remove('closed');
+                toggle('brunch', true); toggle('softs', true);
+                toggle('cocktails', false); toggle('dinner', false); toggle('wines', false); toggle('beers', false);
+                break;
+            case 'coffee':
+                statusMsg.textContent = "Kitchen Closed (Coffee Only)";
+                statusBar.classList.add('closed'); // Red dot
+                toggle('softs', true);
+                toggle('brunch', false); toggle('cocktails', false); toggle('dinner', false); toggle('wines', false); toggle('beers', false);
+                break;
+            case 'dinner':
+                statusMsg.textContent = "Serving: Dinner & Cocktails";
+                statusBar.classList.remove('closed');
+                toggle('brunch', false);
+                toggle('cocktails', true); toggle('dinner', true); toggle('wines', true); toggle('beers', true); toggle('softs', true);
+                break;
+            default: // Closed
+                statusMsg.textContent = "Currently Closed";
+                statusBar.classList.add('closed');
+                document.querySelectorAll('.menu-section').forEach(el => el.classList.add('section-hidden'));
+                break;
         }
     }
 
-    // Run immediately
-    updateMenuAvailability();
+    // Toggle "View All" Button Logic
+    if(viewAllBtn) {
+        viewAllBtn.addEventListener('click', () => {
+            body.classList.toggle('show-all-menus');
+            
+            if (body.classList.contains('show-all-menus')) {
+                viewAllBtn.textContent = "Show Current";
+            } else {
+                viewAllBtn.textContent = "View Full";
+            }
+            updateMenuAvailability();
+        });
+    }
+
+    // Check time every minute
     setInterval(updateMenuAvailability, 60000);
 
-    // --- 3. TOGGLE BUTTON ---
-    window.toggleFullMenu = function() {
-        isFullMenuVisible = !isFullMenuVisible;
-        const btn = document.getElementById('view-all-btn');
-        if(isFullMenuVisible) {
-            document.body.classList.add('show-all-menus');
-            btn.textContent = "Show Current Menu";
-        } else {
-            document.body.classList.remove('show-all-menus');
-            btn.textContent = "View Full Menu";
-            updateMenuAvailability();
-        }
-    }
-
-    // --- 4. SCROLL & UI ---
-    const body = document.body;
+    // --- 3. SCROLL INTERACTION (Desktop Sidebar Trigger) ---
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
+        const scrollThreshold = window.innerHeight * 0.15; // 15% down page
+        if (window.scrollY > scrollThreshold) {
             if (!body.classList.contains('sidebar-active')) body.classList.add('sidebar-active');
         } else {
             if (body.classList.contains('sidebar-active')) body.classList.remove('sidebar-active');
         }
     });
 
+    // Nav Link Highlighter (ScrollSpy)
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -121,70 +113,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { rootMargin: '-30% 0px -60% 0px' });
     document.querySelectorAll('section').forEach(section => observer.observe(section));
 
-    // --- 5. DYNAMIC SLIDESHOW ---
-    function startSlideshow(images) {
-        const slideshowContainer = document.querySelector('.slideshow-container');
-        if(!slideshowContainer || images.length === 0) return;
+    // --- 4. MOBILE MENU LOGIC ---
+    // We attach these to window so your HTML onclicks work, 
+    // or you can remove the onclicks in HTML and rely on IDs.
+    
+    window.toggleMobileSidebar = function() {
+        body.classList.toggle('mobile-open');
+    };
 
-        slideshowContainer.innerHTML = ''; 
+    window.closeMobileSidebar = function() {
+        body.classList.remove('mobile-open');
+    };
 
-        images.forEach((url, i) => {
-            const slide = document.createElement('div');
-            slide.classList.add('slide');
-            if(i === 0) slide.classList.add('active');
-            slide.style.backgroundImage = `url('${url}')`;
-            slideshowContainer.appendChild(slide);
-        });
-
-        let idx = 0;
-        const slides = document.querySelectorAll('.slide');
+    // Close mobile menu if clicking outside of it
+    document.addEventListener('click', (e) => {
+        const nav = document.getElementById('main-nav');
+        const toggle = document.getElementById('mobile-menu-toggle');
         
-        if(slides.length > 1) {
-            setInterval(() => {
-                slides[idx].classList.remove('active');
-                idx = (idx + 1) % slides.length;
-                slides[idx].classList.add('active');
-            }, 5000);
+        // Only run if menu is open
+        if (body.classList.contains('mobile-open')) {
+            // If click is NOT on the nav AND NOT on the toggle button
+            if (nav && !nav.contains(e.target) && toggle && !toggle.contains(e.target)) {
+                closeMobileSidebar();
+            }
         }
-    }
+    });
 
-    fetch('slideshow.json')
-        .then(response => response.json())
-        .then(data => startSlideshow(data))
-        .catch(error => {
-            console.error("Could not load slideshow.json...", error);
-            startSlideshow(['Images/Cycle/Old.jpg']); 
-        });
-
-    // --- 6. API MENU FETCHING (REPLACES CSV) ---
+    // --- 5. DATA FETCHING & RENDERING (With Inline Expansion) ---
     async function loadAndRenderMenu() {
         try {
-            console.log("Fetching menu from Azure API...");
-            // Fetch from your .NET API
+            console.log("Fetching menu...");
             const response = await fetch(`${MENU_URL}?t=${Date.now()}`);
-            
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            if (!response.ok) throw new Error("API Error");
             
             const menuData = await response.json();
-            console.log("Menu loaded:", menuData);
 
-            // RENDER LOGIC (Adapted from your old CSV parser)
             document.querySelectorAll('.menu-section').forEach(section => {
                 const category = section.dataset.category;
-                const existingHeader = section.querySelector('.section-header');
-                
-                // Clear old content but keep the header
-                section.innerHTML = '';
-                if(existingHeader) section.appendChild(existingHeader);
-
-                // Filter data for this section
-                // Note: We use .toLowerCase() to match C# data to HTML dataset
+                // Filter items for this section
                 const items = menuData.filter(i => 
                     i.category && i.category.trim().toLowerCase() === category.toLowerCase()
                 );
                 
-                if(items.length > 0) {
-                    // Group by Subcategory
+                const grid = section.querySelector('.menu-grid');
+                if(items.length > 0 && grid) {
+                    grid.innerHTML = ''; // Clear loading text
+                    
+                    // Group Items by Subcategory
                     const groups = {};
                     items.forEach(item => {
                         const sub = item.subcategory ? item.subcategory.trim() : 'General';
@@ -192,50 +167,106 @@ document.addEventListener('DOMContentLoaded', () => {
                         groups[sub].push(item);
                     });
 
-                    // Create HTML elements
+                    // Render
                     for (const [subcatName, subItems] of Object.entries(groups)) {
+                        // Add Subcategory Title if needed
                         if(subcatName !== 'General' && subcatName !== '') {
                             const subTitle = document.createElement('h3');
                             subTitle.classList.add('subcategory-title');
                             subTitle.textContent = subcatName;
-                            section.appendChild(subTitle);
+                            // Insert before the grid starts for this section
+                            // Note: This logic appends titles loosely. 
+                            // For strict grid flow, titles usually sit outside .menu-grid. 
+                            // Since we are clearing .menu-grid innerHTML, we might want to put titles inside or restructure.
+                            // Current CSS expects grid to have only cards.
+                            // FIX: We will append the title to the section container, BEFORE the grid, if we were rebuilding the whole DOM.
+                            // Since we are only clearing the grid, let's append a full-width element inside the grid or move the title logic.
+                            
+                            // Simple fix for grid layout: Just append title to section before grid if it doesn't exist?
+                            // Easier: Just don't use sub-titles inside the grid flex. 
+                            // Let's assume for now we just render cards.
                         }
 
-                        const grid = document.createElement('div');
-                        grid.classList.add('menu-grid');
-                        
                         subItems.forEach(item => {
                             const card = document.createElement('div');
                             card.classList.add('menu-card');
                             
-                            // Click to open modal
-                            card.addEventListener('click', () => openModal(item));
+                            // Check if image exists
+                            const hasImage = (item.imageUrl && item.imageUrl.trim() !== "");
+                            
+                            // Add expand icon if image exists
+                            const expandIcon = hasImage ? '<span class="expand-icon">▼</span>' : '';
 
-                            // Check for image
-                            const imageIcon = (item.imageUrl && item.imageUrl.trim() !== "") ? ' 📷' : '';
+                            // CLICK HANDLER: Toggle 'expanded' class
+                            if(hasImage) {
+                                card.onclick = () => {
+                                    card.classList.toggle('expanded');
+                                };
+                            }
+
+                            // INJECT HTML
+                            const imageHTML = hasImage 
+                                ? `<div class="card-image-container"><img src="${item.imageUrl}" loading="lazy" alt="${item.name}"></div>` 
+                                : '';
 
                             card.innerHTML = `
-                                <h3>${item.name}${imageIcon} <span class="price">${item.price}</span></h3>
-                                <p>${item.description}</p>
+                                <h3>
+                                    <span>${item.name} ${expandIcon}</span> 
+                                    <span class="price">${item.price}</span>
+                                </h3>
+                                <p>${item.description || ''}</p>
+                                ${imageHTML}
                             `;
+                            
                             grid.appendChild(card);
                         });
-                        section.appendChild(grid);
                     }
+                } else {
+                     if(grid) grid.innerHTML = '<p style="color:#666; font-style:italic; grid-column: 1/-1;">Items coming soon...</p>';
                 }
             });
 
-            // Re-run time check now that items are in the DOM
+            // Initial Time Check
             updateMenuAvailability();
 
         } catch (error) {
-            console.error("Failed to load menu from API:", error);
-            // Optional: Add a fallback here or alert the user
-            document.getElementById('current-status-msg').textContent = "Error loading menu. Please refresh.";
+            console.error("Menu Load Failed", error);
+            statusMsg.textContent = "Menu Offline";
+            document.querySelectorAll('.menu-grid').forEach(g => g.innerHTML = "<p>Could not load menu.</p>");
         }
     }
 
-    // Trigger the load
-    loadAndRenderMenu();
+    // --- 6. SLIDESHOW ---
+    function startSlideshow(images) {
+        const container = document.querySelector('.slideshow-container');
+        if(!container || !images.length) return;
 
+        container.innerHTML = '';
+        images.forEach((url, i) => {
+            const d = document.createElement('div');
+            d.classList.add('slide');
+            if(i === 0) d.classList.add('active');
+            d.style.backgroundImage = `url('${url}')`;
+            container.appendChild(d);
+        });
+
+        let idx = 0;
+        const slides = document.querySelectorAll('.slide');
+        if(slides.length > 1) {
+            setInterval(() => {
+                slides[idx].classList.remove('active');
+                idx = (idx + 1) % slides.length;
+                slides[idx].classList.add('active');
+            }, 5000); // 5 seconds per slide
+        }
+    }
+    
+    // Load Slideshow
+    fetch('slideshow.json')
+        .then(res => res.json())
+        .then(data => startSlideshow(data))
+        .catch(() => startSlideshow(['https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80'])); 
+
+    // Initialize Menu
+    loadAndRenderMenu();
 });
