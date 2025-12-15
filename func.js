@@ -1,312 +1,260 @@
-// 1. CONFIGURATION
-const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net/api"; 
-const MENU_URL = `${API_BASE}/menu`;
-const UPLOAD_URL = `${API_BASE}/upload`;
-
-// 2. STATE VARIABLES
-let menuData = [];
-let cropper = null;           
-let finalCroppedFile = null;  
-
-// 3. INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
-    loadMenuItems();
-
-    // Event Listener: "Add New Item" Form Submit
-    document.getElementById('item-form').addEventListener('submit', handleFormSubmit);
-
-    // Event Listener: File Input (Trigger Cropper)
-    document.getElementById('item-image-file').addEventListener('change', handleFileSelect);
-
-    // Event Listener: Crop Confirm Button
-    document.getElementById('btn-crop-confirm').addEventListener('click', handleCropConfirm);
-});
-
-// --- CORE FUNCTIONS ---
-
-// 4. LOAD ITEMS
-async function loadMenuItems() {
-    try {
-        const response = await fetch(`${MENU_URL}?t=${Date.now()}`);
-        if (!response.ok) throw new Error("Failed to load menu");
-        
-        menuData = await response.json();
-        renderItems(menuData);
-    } catch (error) {
-        console.error("Error loading items:", error);
-    }
-}
-
-// 5. RENDER ITEMS (With Inline Editing)
-function renderItems(items) {
-    const grid = document.getElementById('admin-grid'); 
-    grid.innerHTML = ''; 
-
-    items.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'card'; 
-        
-        const validLink = item.imageUrl || item.image;
-        const displayImg = (validLink && validLink.trim() !== "") 
-            ? validLink 
-            : 'https://via.placeholder.com/300?text=No+Image';
-
-        div.innerHTML = `
-            <img src="${displayImg}" class="card-img" alt="${item.name}">
-            <div class="card-body">
-                
-                <div class="card-header">
-                    <h3 class="card-title editable-field" 
-                        id="name-${item.id}"
-                        onclick="startEdit(${item.id})">
-                        ${item.name}
-                    </h3>
-
-                    <span class="card-price">
-                        £<span class="editable-field" 
-                               id="price-${item.id}"
-                               onclick="startEdit(${item.id})">${item.price}</span>
-                    </span>
-                </div>
-
-                <p class="card-desc editable-field" 
-                   id="desc-${item.id}"
-                   onclick="startEdit(${item.id})">
-                   ${item.description || 'Click to add description...'}
-                </p>
-
-                <input type="hidden" id="cat-${item.id}" value="${item.category}">
-                <input type="hidden" id="img-${item.id}" value="${validLink}">
-
-                <div class="card-actions" id="std-actions-${item.id}">
-                    <button class="btn btn-danger" onclick="window.deleteItem(${item.id})" style="width:100%">Delete Item</button>
-                </div>
-
-                <div class="inline-actions" id="edit-actions-${item.id}">
-                    <button class="btn btn-primary" onclick="saveInlineEdit(${item.id})" style="flex:1">Save</button>
-                    <button class="btn btn-outline" onclick="cancelEdit(${item.id})" style="flex:1">Cancel</button>
-                </div>
-            </div>
-        `;
-        grid.appendChild(div);
-    });
-}
-
-// --- INLINE EDITING FUNCTIONS ---
-
-// A. Turn on Edit Mode
-window.startEdit = function(id) {
-    const nameField = document.getElementById(`name-${id}`);
-    const priceField = document.getElementById(`price-${id}`);
-    const descField = document.getElementById(`desc-${id}`);
     
-    // Make editable
-    nameField.contentEditable = "true";
-    priceField.contentEditable = "true";
-    descField.contentEditable = "true";
-
-    // Toggle Buttons
-    document.getElementById(`std-actions-${id}`).style.display = 'none'; 
-    document.getElementById(`edit-actions-${id}`).style.display = 'flex'; 
+    // route to controller
+    const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net"; //
+    const MENU_URL = `${API_BASE}/api/menu`;
     
-    nameField.focus(); // Focus on name immediately
-};
-
-// B. Cancel Edit Mode
-window.cancelEdit = function(id) {
-    const originalItem = menuData.find(i => i.id === id);
-    if (!originalItem) return;
-
-    // Reset Text
-    document.getElementById(`name-${id}`).innerText = originalItem.name;
-    document.getElementById(`price-${id}`).innerText = originalItem.price;
-    document.getElementById(`desc-${id}`).innerText = originalItem.description || 'Click to add description...';
-
-    disableEditMode(id);
-};
-
-// C. Save Changes (PUT)
-window.saveInlineEdit = async function(id) {
-    const newName = document.getElementById(`name-${id}`).innerText.trim();
-    const newPrice = document.getElementById(`price-${id}`).innerText.trim();
-    const newDesc = document.getElementById(`desc-${id}`).innerText.trim();
-    
-    const category = document.getElementById(`cat-${id}`).value;
-    const imageUrl = document.getElementById(`img-${id}`).value;
-
-    if (!newName || !newPrice) {
-        alert("Name and Price are required.");
-        return;
-    }
-
-    const itemData = {
-        id: id,
-        name: newName,
-        price: newPrice, 
-        description: newDesc === 'Click to add description...' ? '' : newDesc,
-        category: category,
-        imageUrl: imageUrl,
-        image: imageUrl
+    // Time Configuration (Minutes from midnight)
+    const CONFIG = {
+        brunchStart: 9 * 60 + 30,  // 09:30
+        coffeeStart: 14 * 60 + 30, // 14:30
+        dinnerStart: 16 * 60,      // 16:00
+        closeTime:   22 * 60 + 30  // 22:30
     };
 
-    try {
-        const response = await fetch(`${MENU_URL}/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(itemData)
-        });
+    const body = document.body;
+    const viewAllBtn = document.getElementById('view-all-btn');
+    const statusMsg = document.getElementById('current-status-msg');
+    const statusBar = document.querySelector('.status-pill');
 
-        if (response.ok) {
-            // Update local data
-            const index = menuData.findIndex(i => i.id === id);
-            if (index !== -1) menuData[index] = itemData;
-            
-            disableEditMode(id);
-        } else {
-            alert("Error saving: " + await response.text());
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Network error.");
-    }
-};
-
-function disableEditMode(id) {
-    document.getElementById(`name-${id}`).contentEditable = "false";
-    document.getElementById(`price-${id}`).contentEditable = "false";
-    document.getElementById(`desc-${id}`).contentEditable = "false";
-
-    document.getElementById(`std-actions-${id}`).style.display = 'block';
-    document.getElementById(`edit-actions-${id}`).style.display = 'none';
-}
-
-// --- MODAL & CROPPER (For Adding New Items) ---
-
-function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const url = URL.createObjectURL(file);
-        const imageElement = document.getElementById('image-to-crop');
-        
-        imageElement.src = url;
-        document.getElementById('cropper-modal').style.display = 'flex';
-
-        if (cropper) cropper.destroy();
-
-        cropper = new Cropper(imageElement, {
-            aspectRatio: 1, 
-            viewMode: 1,
-        });
-    }
-    e.target.value = ''; 
-}
-
-function handleCropConfirm() {
-    if (!cropper) return;
-
-    cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
-        finalCroppedFile = blob; 
-        document.getElementById('preview-img').src = URL.createObjectURL(blob);
-        document.getElementById('cropper-modal').style.display = 'none';
-    });
-}
-
-// Open "Add New" Modal
-window.openModal = function() {
-    const modal = document.getElementById('item-modal');
-    const form = document.getElementById('item-form');
-
-    // Reset everything for a fresh "Add"
-    finalCroppedFile = null; 
-    form.reset();
-    document.getElementById('item-id').value = ""; // No ID means create new
-    document.getElementById('preview-img').src = "";
-    document.getElementById('item-image-url').value = "";
-
-    modal.classList.add('open');
-};
-
-window.closeModal = function() {
-    document.getElementById('item-modal').classList.remove('open');
-};
-
-window.clearImage = function() {
-    document.getElementById('item-image-url').value = "";
-    document.getElementById('preview-img').src = "";
-    finalCroppedFile = null;
-};
-
-// --- SUBMIT LOGIC (For "Add New") ---
-
-async function handleFormSubmit(e) {
-    e.preventDefault();
-
-    const nameInput = document.getElementById('item-name').value;
-    let finalImageUrl = document.getElementById('item-image-url').value;
-
-    // 1. Upload Image if new file exists
-    if (finalCroppedFile) {
-        try {
-            finalImageUrl = await uploadImageToBackend(finalCroppedFile, nameInput);
-        } catch (err) {
-            alert("Image upload failed: " + err.message);
+    // --- 2. MENU AVAILABILITY LOGIC ---
+    function updateMenuAvailability() {
+        // If user clicked "View Full", stop filtering
+        if (body.classList.contains('show-all-menus')) {
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('section-hidden'));
+            statusMsg.textContent = "Viewing All Menus";
+            statusBar.classList.remove('closed');
             return;
         }
-    }
 
-    // 2. Prepare Data (Only for Creation now, since Edit is inline)
-    const itemData = {
-        name: nameInput,
-        description: document.getElementById('item-desc').value,
-        price: document.getElementById('item-price').value, 
-        category: document.getElementById('item-category').value,
-        imageUrl: finalImageUrl, 
-        image: finalImageUrl 
-    };
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        
+        // Helper to toggle visibility
+        const toggle = (id, shouldShow) => {
+            const el = document.getElementById(id);
+            if(el) {
+                if(shouldShow) el.classList.remove('section-hidden');
+                else el.classList.add('section-hidden');
+            }
+        };
 
-    // 3. POST Request
-    try {
-        const response = await fetch(MENU_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(itemData)
-        });
+        // Determine Service State
+        let state = 'closed';
+        if (currentMinutes >= CONFIG.brunchStart && currentMinutes < CONFIG.coffeeStart) state = 'brunch';
+        else if (currentMinutes >= CONFIG.coffeeStart && currentMinutes < CONFIG.dinnerStart) state = 'coffee';
+        else if (currentMinutes >= CONFIG.dinnerStart && currentMinutes < CONFIG.closeTime) state = 'dinner';
 
-        if (response.ok) {
-            alert("Item Added!");
-            closeModal();
-            loadMenuItems(); 
-        } else {
-            alert("Error adding item.");
+        // Apply State
+        switch(state) {
+            case 'brunch':
+                statusMsg.textContent = "Serving: Brunch & Coffee";
+                statusBar.classList.remove('closed');
+                toggle('brunch', true); toggle('softs', true);
+                toggle('cocktails', false); toggle('dinner', false); toggle('wines', false); toggle('beers', false);
+                break;
+            case 'coffee':
+                statusMsg.textContent = "Kitchen Closed (Coffee Only)";
+                statusBar.classList.add('closed'); // Red dot
+                toggle('softs', true);
+                toggle('brunch', false); toggle('cocktails', false); toggle('dinner', false); toggle('wines', false); toggle('beers', false);
+                break;
+            case 'dinner':
+                statusMsg.textContent = "Serving: Dinner & Cocktails";
+                statusBar.classList.remove('closed');
+                toggle('brunch', false);
+                toggle('cocktails', true); toggle('dinner', true); toggle('wines', true); toggle('beers', true); toggle('softs', true);
+                break;
+            default: // Closed
+                statusMsg.textContent = "Currently Closed";
+                statusBar.classList.add('closed');
+                document.querySelectorAll('.menu-section').forEach(el => el.classList.add('section-hidden'));
+                break;
         }
-    } catch (error) {
-        console.error(error);
-        alert("Network error.");
     }
-}
 
-async function uploadImageToBackend(fileBlob, itemName) {
-    const formData = new FormData();
-    formData.append('file', fileBlob, itemName + ".png"); 
-    formData.append('itemName', itemName); // Fix for backend requirement
+    // Toggle "View All" Button Logic
+    if(viewAllBtn) {
+        viewAllBtn.addEventListener('click', () => {
+            body.classList.toggle('show-all-menus');
+            
+            if (body.classList.contains('show-all-menus')) {
+                viewAllBtn.textContent = "Show Current";
+            } else {
+                viewAllBtn.textContent = "View Full";
+            }
+            updateMenuAvailability();
+        });
+    }
 
-    const res = await fetch(UPLOAD_URL, {
-        method: 'POST',
-        body: formData
+    // Check time every minute
+    setInterval(updateMenuAvailability, 60000);
+
+    // --- 3. SCROLL INTERACTION (Desktop Sidebar Trigger) ---
+    window.addEventListener('scroll', () => {
+        const scrollThreshold = window.innerHeight * 0.15; // 15% down page
+        if (window.scrollY > scrollThreshold) {
+            if (!body.classList.contains('sidebar-active')) body.classList.add('sidebar-active');
+        } else {
+            if (body.classList.contains('sidebar-active')) body.classList.remove('sidebar-active');
+        }
     });
 
-    if (!res.ok) throw new Error("Server rejected upload");
-    const data = await res.json();
-    return data.url || data.imageUrl || data.link;
-}
+    // Nav Link Highlighter (ScrollSpy)
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
+                const activeLink = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+                if (activeLink) activeLink.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('section').forEach(section => observer.observe(section));
 
-// --- DELETE LOGIC ---
-window.deleteItem = async function(id) {
-    if (!confirm("Are you sure?")) return;
-    try {
-        const response = await fetch(`${MENU_URL}/${id}`, { method: 'DELETE' });
-        if (response.ok) loadMenuItems();
-    } catch (error) {
-        console.error(error);
+    // --- 4. MOBILE MENU LOGIC ---
+    // We attach these to window so your HTML onclicks work, 
+    // or you can remove the onclicks in HTML and rely on IDs.
+    
+    window.toggleMobileSidebar = function() {
+        body.classList.toggle('mobile-open');
+    };
+
+    window.closeMobileSidebar = function() {
+        body.classList.remove('mobile-open');
+    };
+
+    // Close mobile menu if clicking outside of it
+    document.addEventListener('click', (e) => {
+        const nav = document.getElementById('main-nav');
+        const toggle = document.getElementById('mobile-menu-toggle');
+        
+        // Only run if menu is open
+        if (body.classList.contains('mobile-open')) {
+            // If click is NOT on the nav AND NOT on the toggle button
+            if (nav && !nav.contains(e.target) && toggle && !toggle.contains(e.target)) {
+                closeMobileSidebar();
+            }
+        }
+    });
+
+    // --- 5. DATA FETCHING & RENDERING (With Inline Expansion) ---
+    async function loadAndRenderMenu() {
+        try {
+            console.log("Fetching menu...");
+            const response = await fetch(`${MENU_URL}?t=${Date.now()}`);
+            if (!response.ok) throw new Error("API Error");
+            
+            const menuData = await response.json();
+
+            document.querySelectorAll('.menu-section').forEach(section => {
+                const category = section.dataset.category;
+                // Filter items for this section
+                const items = menuData.filter(i => 
+                    i.category && i.category.trim().toLowerCase() === category.toLowerCase()
+                );
+                
+                const grid = section.querySelector('.menu-grid');
+                if(items.length > 0 && grid) {
+                    grid.innerHTML = ''; // Clear loading text
+                    
+                    // Group Items by Subcategory
+                    const groups = {};
+                    items.forEach(item => {
+                        const sub = item.subcategory ? item.subcategory.trim() : 'General';
+                        if(!groups[sub]) groups[sub] = [];
+                        groups[sub].push(item);
+                    });
+
+                    // Render
+                    for (const [subcatName, subItems] of Object.entries(groups)) {
+                        // Add Subcategory Title if needed
+                        if(subcatName !== 'General' && subcatName !== '') {
+                            const subTitle = document.createElement('h3');
+                            subTitle.classList.add('subcategory-title');
+                            subTitle.textContent = subcatName;
+                        }
+
+                        subItems.forEach(item => {
+                            const card = document.createElement('div');
+                            card.classList.add('menu-card');
+                            
+                            // Check if image exists
+                            const hasImage = (item.imageUrl && item.imageUrl.trim() !== "");
+                            
+                            // Add expand icon if image exists
+                            const expandIcon = hasImage ? '<span class="expand-icon">▼</span>' : '';
+
+                            // CLICK HANDLER: Toggle 'expanded' class
+                            if(hasImage) {
+                                card.onclick = () => {
+                                    card.classList.toggle('expanded');
+                                };
+                            }
+
+                            // INJECT HTML
+                            const imageHTML = hasImage 
+                                ? `<div class="card-image-container"><img src="${item.imageUrl}" loading="lazy" alt="${item.name}"></div>` 
+                                : '';
+
+                            card.innerHTML = `
+                                <h3>
+                                    <span>${item.name} ${expandIcon}</span> 
+                                    <span class="price">${item.price}</span>
+                                </h3>
+                                <p>${item.description || ''}</p>
+                                ${imageHTML}
+                            `;
+                            
+                            grid.appendChild(card);
+                        });
+                    }
+                } else {
+                     if(grid) grid.innerHTML = '<p style="color:#666; font-style:italic; grid-column: 1/-1;">Items coming soon...</p>';
+                }
+            });
+
+            // Initial Time Check
+            updateMenuAvailability();
+
+        } catch (error) {
+            console.error("Menu Load Failed", error);
+            statusMsg.textContent = "Menu Offline";
+            document.querySelectorAll('.menu-grid').forEach(g => g.innerHTML = "<p>Could not load menu.</p>");
+        }
     }
-};
+
+    // --- 6. SLIDESHOW ---
+    function startSlideshow(images) {
+        const container = document.querySelector('.slideshow-container');
+        if(!container || !images.length) return;
+
+        container.innerHTML = '';
+        images.forEach((url, i) => {
+            const d = document.createElement('div');
+            d.classList.add('slide');
+            if(i === 0) d.classList.add('active');
+            d.style.backgroundImage = `url('${url}')`;
+            container.appendChild(d);
+        });
+
+        let idx = 0;
+        const slides = document.querySelectorAll('.slide');
+        if(slides.length > 1) {
+            setInterval(() => {
+                slides[idx].classList.remove('active');
+                idx = (idx + 1) % slides.length;
+                slides[idx].classList.add('active');
+            }, 5000); // 5 seconds per slide
+        }
+    }
+    
+    // Load Slideshow
+    fetch('slideshow.json')
+        .then(res => res.json())
+        .then(data => startSlideshow(data))
+        .catch(() => startSlideshow(['https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80'])); 
+
+    // Initialize Menu
+    loadAndRenderMenu();
+});
