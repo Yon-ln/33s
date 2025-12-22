@@ -3,144 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Old Grocery Store</title>
+    <title>33's The Old Grocery Store</title>
     <link rel="stylesheet" href="style.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Playfair+Display:wght@700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <link rel="icon" type="image/x-icon" href="Logo.png">
 </head>
 <body>
 
-<div id="hero-cycle">
-        <div class="overlay"></div> 
-        <div class="slideshow-container">
-            </div>
-
-        <div class="hero-updates glass-panel-sm">
-            <h3>Latest News</h3>
-            <div class="update-content">
-                <p><strong>🎵 Live Jazz this Friday!</strong></p>
-                <p>Join us from 7pm for cocktails and smooth tunes.</p>
-                <a href="https://www.instagram.com/33s_theoldgrocerystore/" target="_blank" class="insta-link">View on Instagram →</a>
-            </div>
-        </div>
-    </div>
-
     <header id="main-header">
         <div class="header-inner">
-            <div id="mobile-menu-toggle" onclick="toggleMobileSidebar()">
-                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-            </div>
-
             <div class="logo-area">
-                <h1><a href="admin.html">33</a>'s The Old Grocery Store</h1>
+                <a href="index.html"><img src="Logo.png" alt="33's Logo"></a>
             </div>
             
-            <nav id="main-nav">
-                <div class="menu-group-container">
-                    <span class="nav-label">Menu</span>
-                    <div class="sub-nav">
-                        <a href="#brunch" class="nav-item" onclick="closeMobileSidebar()">Brunch</a>
-                        <a href="#cocktails" class="nav-item" onclick="closeMobileSidebar()">Cocktails</a>
-                        <a href="#wines" class="nav-item" onclick="closeMobileSidebar()">Wines</a>
-                        <a href="#beers" class="nav-item" onclick="closeMobileSidebar()">Beers</a>
-                        <a href="#dinner" class="nav-item" onclick="closeMobileSidebar()">Dinner</a>
-                        <a href="#softs" class="nav-item" onclick="closeMobileSidebar()">Softs</a>
-                        <a href="#coffee" class="nav-item" onclick="closeMobileSidebar()">Coffee</a>
-                        <a href="#pastries" class="nav-item" onclick="closeMobileSidebar()">Pastries</a>
-                    </div>
-                </div>
-
-                <div class="info-group-desktop">
-                    <a href="#about" class="nav-item top-link">About Us</a>
-                    <a href="#locations" class="nav-item top-link">Locations</a>
-                    <a href="#contact" class="nav-item top-link">Contact</a>
-                </div>
-
-                <div class="social-group-mobile">
-                    <span class="nav-label">Socials</span>
-                    <div class="social-icons-row">
-                        <a href="https://www.instagram.com/33s_theoldgrocerystore/" target="_blank" class="social-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                        </a>
-                        <a href="https://www.facebook.com/p/33s-The-Old-Grocery-Store-61571330213803/" target="_blank" class="social-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                        </a>
-                    </div>
-                </div>
+            <nav id="top-nav">
+                <a href="#menu-section" class="nav-link">MENU</a>
+                <a href="#history-section" class="nav-link">ABOUT</a>
+                <a href="#locations" class="nav-link">SHOPS</a>
+                <a href="#reservations" class="nav-link">RESERVATIONS</a>
+                <a href="#contact" class="nav-link">CONTACT</a>
             </nav>
+            <div id="mobile-toggle"><span></span><span></span><span></span></div>
         </div>
     </header>
 
-    <div id="service-status-bar" class="status-pill">
-        <div class="status-content">
-            <span class="dot-indicator"></span>
-            <span id="current-status-msg">Checking...</span>
+    <div id="hero-section">
+        <div class="hero-bg-slideshow"></div>
+        <div class="hero-overlay-dark"></div>
+        <div class="hero-content-centered">
+            <h2 class="hero-title">WELCOME TO YOUR<br>NEIGHBORHOOD SPOT</h2>
+            <a href="#menu-section" class="btn-hero">VIEW OUR MENU</a>
         </div>
-        <button id="view-all-btn">View Full</button>
+        <div class="social-floater left-floater">
+            <div class="floater-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User"><span class="icon-badge">📷</span></div>
+            <div class="floater-text"><span class="tiny-label">Instagram</span><p><strong>martini_lover:</strong> Best martini in town! 🍸</p></div>
+        </div>
+        <div class="social-floater right-floater">
+            <div class="floater-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User"><span class="icon-badge">🎵</span></div>
+            <div class="floater-text"><span class="tiny-label">Live Music</span><p><strong>Jazz_fan:</strong> Love the jazz vibe.</p></div>
+        </div>
     </div>
 
     <main id="main-content">
-        <section id="brunch" class="content-section menu-section" data-category="Brunch">
-            <div class="section-header glass-panel"><h2>Brunch & Coffee</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-
-        <section id="cocktails" class="content-section menu-section" data-category="Cocktails">
-            <div class="section-header glass-panel"><h2>Cocktails</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-
-        <section id="wines" class="content-section menu-section" data-category="Wines">
-             <div class="section-header glass-panel"><h2>Wines</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-
-        <section id="beers" class="content-section menu-section" data-category="Beers">
-             <div class="section-header glass-panel"><h2>Beers</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-
-        <section id="dinner" class="content-section menu-section" data-category="Dinner">
-             <div class="section-header glass-panel"><h2>Dinner</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-        
-        <section id="softs" class="content-section menu-section" data-category="Softs">
-             <div class="section-header glass-panel"><h2>Softs</h2></div>
-            <div class="menu-grid"></div>
-        </section>
-
-        <section id="about" class="content-section">
-            <div class="card glass-panel">
-                <h2>About Us</h2>
-                <p>Built by Emilio & Mario.</p>
-                <p>We are dedicated to bringing the finest local produce to your table in a relaxed, historic atmosphere.</p>
+        <div id="menu-section" class="content-wrapper">
+            <div class="section-title-center">
+                <h3>OUR PROVISIONS</h3>
             </div>
+
+            <nav class="desktop-tabs">
+                <button class="tab-btn active" data-target="brunch">BRUNCH</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="cocktails">COCKTAILS</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="wines">WINES</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="beers">BEERS</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="dinner">DINNER</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="softs">SOFTS</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="coffee">COFFEE</button> <span class="separator">|</span>
+                <button class="tab-btn" data-target="pastries">PASTRIES</button>
+            </nav>
+
+            <div id="menu-display-area">
+                
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="brunch">BRUNCH <span class="arrow">▼</span></button>
+                    <div id="brunch" class="menu-category-container active-category">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1533089862017-5f833f06f405?auto=format&fit=crop&q=80" alt="Brunch">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="cocktails">COCKTAILS <span class="arrow">▼</span></button>
+                    <div id="cocktails" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80" alt="Cocktails">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="wines">WINES <span class="arrow">▼</span></button>
+                    <div id="wines" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80" alt="Wines">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="beers">BEERS <span class="arrow">▼</span></button>
+                    <div id="beers" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1574966739987-65e38db0f7ce?auto=format&fit=crop&q=80" alt="Beers">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="dinner">DINNER <span class="arrow">▼</span></button>
+                    <div id="dinner" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80" alt="Dinner">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="softs">SOFTS <span class="arrow">▼</span></button>
+                    <div id="softs" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1623934199716-dc28818a6ec7?auto=format&fit=crop&q=80" alt="Soft Drinks">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="coffee">COFFEE <span class="arrow">▼</span></button>
+                    <div id="coffee" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80" alt="Coffee">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-wrapper">
+                    <button class="mobile-accordion-header" data-target="pastries">PASTRIES <span class="arrow">▼</span></button>
+                    <div id="pastries" class="menu-category-container">
+                        <div class="desktop-split-view">
+                            <div class="menu-list-side"></div>
+                            <div class="menu-image-side">
+                                <img src="https://images.unsplash.com/photo-1555507036-ab1f40388085?auto=format&fit=crop&q=80" alt="Pastries">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <section id="history-section" class="split-section">
+            <div class="split-content text-side">
+                <h3>A SLICE OF HISTORY</h3>
+                <p>Built by Emilio & Mario. We are dedicated to bringing the finest local produce to your table in a relaxed, historic atmosphere.</p>
+                <div class="signature">Emilio & Mario</div>
+            </div>
+            <div class="split-content image-side"></div>
         </section>
 
-        <section id="locations" class="content-section">
-            <div class="card glass-panel">
-                <h2>Locations</h2>
-                <div class="map-placeholder">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2479.2692309777267!2d-0.1002192233754798!3d51.58162887183037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b22637148a1%3A0xbfbbd07f4cc55d2d!2s33%E2%80%99s%20The%20Old%20Grocery%20Store!5e0!3m2!1sen!2suk!4v1765732301724!5m2!1sen!2suk" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <section id="locations" class="grocery-store-section">
+            <div class="store-card">
+                <div class="store-image">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.6987625946896!2d-0.0881!3d51.5226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDMxJzIxLjQiTiAwwrAwNScxNy4yIlc!5e0!3m2!1sen!2suk!4v1620000000000!5m2!1sen!2suk" width="100%" height="100%" style="border:0;" loading="lazy"></iframe>
+                </div>
+                <div class="store-info">
+                    <h4>GROCERY STORE</h4>
+                    <p>Stop by our shop to take a piece of 33's home with you.</p>
+                    <a href="#" class="btn-text">Visit Shop →</a>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="content-section">
-            <div class="card glass-panel">
-                <h2>Contact</h2>
-                <p><strong>Email:</strong> 33stheoldgrocery@gmail.com</p>
-                <p><strong>Phone:</strong> +44 07405206071</p>
-            </div>
-        </section>
-
-        <footer><p>© 2025 The Old Grocery Store.</p></footer>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="func.js"></script>
+    <footer id="main-footer">
+        <div class="footer-column"><h5>33's</h5><p>203 Old Street,<br>London, UK</p></div>
+        <div class="footer-column"><h5>HOURS</h5><p>Mon - Sun<br>9am - 11pm</p></div>
+        <div class="footer-column"><h5>SOCIAL</h5><div class="social-links"><a href="#">Instagram</a><a href="#">Facebook</a></div></div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
+    <script src="func.js" defer></script>
 </body>
 </html>
