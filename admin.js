@@ -1,13 +1,14 @@
 // 1. CONFIGURATION
 const API_BASE = "https://33stheoldgrocery-beh6a0dmhufqbaf4.ukwest-01.azurewebsites.net/api"; 
-const MENU_URL = `${API_BASE}/menu`;
-const UPLOAD_URL = `${API_BASE}/upload`;
+const MENU_URL = `${API_BASE}/Menu`;
+const HERO_URL = `${API_BASE}/Hero`;
+const UPLOAD_URL = `${API_BASE}/Upload`;
 
 // 2. STATE VARIABLES
 let menuData = [];
 let cropper = null;           
 let finalCroppedFile = null; 
-let editingId = null; // Tracks if we are editing an existing image
+let editingId = null; // Tracks if we are editing an existing item
 
 // The list of categories for your dropdowns
 const CATEGORIES = ['Brunch', 'Coffees', 'Pastries', 'Cocktails', 'Wines', 'Beers', 'Dinner', 'Softs', 'Whiskey', 'Gin', 'Rum', 'Brandy'];
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup "List View" Toggle Button
     const headerTitle = document.querySelector('header h1');
     if (headerTitle) {
-        // Prevent duplicate buttons if script runs twice
         if (!document.getElementById('view-toggle-btn')) {
             const toggleBtn = document.createElement('button');
             toggleBtn.id = 'view-toggle-btn';
@@ -100,7 +100,7 @@ function renderItems(items) {
 
         div.innerHTML = `
             <img src="${displayImg}" class="card-img" alt="${item.name}" 
-                 onclick="triggerImageEdit(${item.id})" 
+                 onclick="triggerImageEdit(${item.id})"
                  title="Click to change image">
             
             <div class="card-body">
@@ -199,10 +199,8 @@ window.createNewCard = function() {
     
     document.getElementById('new-item-file').addEventListener('change', handleNewFileSelect);
     
-    // Focus and select text
     const nameField = document.getElementById('new-name');
     nameField.focus();
-    // Select all text in the contenteditable
     const range = document.createRange();
     range.selectNodeContents(nameField);
     const sel = window.getSelection();
@@ -285,7 +283,7 @@ window.triggerNewItemUpload = function() {
     if(fileInput) fileInput.click();
 };
 
-// 3. Handle File Selection (Global & New)
+// 3. Handle File Selection
 function handleFileSelect(e) { handleGenericFileSelect(e); }
 function handleNewFileSelect(e) { handleGenericFileSelect(e); }
 
@@ -304,7 +302,7 @@ function handleGenericFileSelect(e) {
     e.target.value = ''; 
 }
 
-// 4. Handle Crop Confirm
+// 4. Handle Crop Confirm (THE FIX IS HERE)
 async function handleCropConfirm() {
     if (!cropper) return;
 
@@ -327,6 +325,12 @@ async function handleCropConfirm() {
                     if(imgTag) imgTag.src = newUrl;
                 }
                 alert("Image Updated! Click 'Save' to persist.");
+                
+                // FIX: Use lowercase 'startEdit' to match function definition
+                if (typeof window.startEdit === 'function') {
+                    window.startEdit(editingId);
+                }
+
             } catch(e) {
                 alert("Upload failed: " + e.message);
             }
@@ -356,7 +360,8 @@ window.startEdit = function(id, fieldIdToFocus) {
     document.getElementById(`desc-${id}`).contentEditable = "true";
 
     document.getElementById(`cat-display-${id}`).style.display = 'none';
-    document.getElementById(`cat-edit-${id}`).style.display = 'block';
+    const catSelect = document.getElementById(`cat-edit-${id}`);
+    if(catSelect) catSelect.style.display = 'block';
 
     document.getElementById(`std-actions-${id}`).style.display = 'none'; 
     document.getElementById(`edit-actions-${id}`).style.display = 'flex'; 
@@ -432,7 +437,7 @@ function disableEditMode(id) {
     document.getElementById(`price-${id}`).contentEditable = "false";
     document.getElementById(`desc-${id}`).contentEditable = "false";
 
-    document.getElementById(`std-actions-${id}`).style.display = 'block'; // Make default visible
+    document.getElementById(`std-actions-${id}`).style.display = 'block'; 
     document.getElementById(`edit-actions-${id}`).style.display = 'none';
 }
 
