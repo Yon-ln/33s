@@ -16,6 +16,8 @@ let menuState = {
     data: [], // Stores the full list of items from API
 };
 
+let currentTargetId = null; // Tracks which item we are editing (null = new item)
+
 document.addEventListener('DOMContentLoaded', async () => {
     await CONFIG.init;
 
@@ -23,14 +25,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSearchAndFilters();
     
     // Initialize the Crop Manager (defined in crop.js)
-    // Callback: When an image is uploaded, auto-save the item to persist the new URL
+    // Callback: When an image is uploaded, update the visual preview and trigger "Edit Mode"
     if (typeof CropManager !== 'undefined') {
         CropManager.init((id, newUrl) => {
-            // Optional: You can auto-save immediately, or just let the user click "Save"
             console.log(`Image updated for ID ${id}: ${newUrl}`);
-            // If you want to auto-save the text fields + new image immediately:
-            // window.saveInlineEdit(id); 
+            
+            // 1. Update the visual image on the grid immediately
+            const imgTag = document.querySelector(`.card[data-id="${id}"] .card-img`);
+            const hiddenInput = document.getElementById(`img-${id}`);
+            
+            if (imgTag) imgTag.src = newUrl;
+            if (hiddenInput) hiddenInput.value = newUrl;
+
+            // 2. Trigger the "Save / Cancel" bar on the row
             window.startEdit(id);
+            
+            // 3. Mark image as modified (optional helper for UI)
+            if (imgTag) imgTag.dataset.modified = "true";
         });
     } else {
         console.warn("CropManager not found. Image editing will not work.");
@@ -53,46 +64,48 @@ function renderItems(items) {
     grid.innerHTML = ''; 
 
     items.forEach(item => {
-        const validLink = item.imageUrl || 'placeholder.jpg';
+        const validLink = item.imageUrl || 'assets/placeholder.jpg';
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.id = item.id; // Helpful for DOM queries
         
+        // This structure must EXACTLY match the CSS Grid definition in menu.css
         card.innerHTML = `
-    <img src="${validLink}" class="card-img view-img" 
-         onclick="window.triggerImageEdit(${item.id})">
-    
-    <div class="card-body"> <div class="card-header">
-            <h3 class="card-title editable-field view-name" 
-                id="name-${item.id}" 
-                onclick="window.startEdit(${item.id})">${item.name}</h3>
+            <img src="${validLink}" class="card-img view-img" 
+                 onclick="window.openLibrary(${item.id})">
             
-            <span class="card-price view-price">
-                <span class="editable-field" id="price-${item.id}" onclick="window.startEdit(${item.id})">${item.price}</span>
-            </span>
-        </div>
-        
-        <p class="card-desc editable-field view-desc" 
-           id="desc-${item.id}" 
-           onclick="window.startEdit(${item.id})">${item.description || '...'}</p>
-        
-        <div class="list-cat-wrapper view-cat">
-            <span id="cat-display-${item.id}" class="card-cat-display" onclick="window.startEdit(${item.id})">${item.category || 'Uncategorized'}</span>
-            <select id="cat-edit-${item.id}" style="display:none;">${DOM.generateCategoryOptions(item.category)}</select>
-        </div>
+            <div class="card-body"> 
+                <div class="card-header">
+                    <h3 class="card-title editable-field view-name" 
+                        id="name-${item.id}" 
+                        onclick="window.startEdit(${item.id})">${item.name}</h3>
+                    
+                    <span class="card-price view-price">
+                        <span class="editable-field" id="price-${item.id}" onclick="window.startEdit(${item.id})">${item.price}</span>
+                    </span>
+                </div>
+                
+                <p class="card-desc editable-field view-desc" 
+                   id="desc-${item.id}" 
+                   onclick="window.startEdit(${item.id})">${item.description || '...'}</p>
+                
+                <div class="list-cat-wrapper view-cat">
+                    <span id="cat-display-${item.id}" class="card-cat-display" onclick="window.startEdit(${item.id})">${item.category || 'Uncategorized'}</span>
+                    <select id="cat-edit-${item.id}" style="display:none;">${DOM.generateCategoryOptions(item.category)}</select>
+                </div>
 
-        <input type="hidden" id="img-${item.id}" value="${validLink}">
+                <input type="hidden" id="img-${item.id}" value="${validLink}">
 
-        <div class="card-actions" id="std-actions-${item.id}">
-            <button class="btn btn-danger" onclick="window.deleteItem(${item.id})">Del</button>
-        </div>
-        
-        <div class="inline-actions" id="edit-actions-${item.id}" style="display: none;">
-            <button class="btn btn-primary" onclick="window.saveInlineEdit(${item.id})">Save</button>
-            <button class="btn btn-outline" onclick="window.cancelEdit(${item.id})">Cancel</button>
-        </div>
-    </div>
-`;
+                <div class="card-actions" id="std-actions-${item.id}">
+                    <button class="btn btn-danger" onclick="window.deleteItem(${item.id})">DEL</button>
+                </div>
+                
+                <div class="inline-actions" id="edit-actions-${item.id}" style="display: none;">
+                    <button class="btn btn-primary" onclick="window.saveInlineEdit(${item.id})">SAVE</button>
+                    <button class="btn btn-outline" onclick="window.cancelEdit(${item.id})">CANCEL</button>
+                </div>
+            </div>
+        `;
         grid.appendChild(card);
     });
 }
@@ -138,12 +151,18 @@ function updateView(checkbox) {
 
 // --- 3. GLOBAL WINDOW ACTIONS (For HTML onclick events) ---
 
-// A. Trigger Image Crop
-window.triggerImageEdit = function(id) {
-    if (typeof CropManager !== 'undefined') {
-        CropManager.trigger(id);
+// A. Trigger Image Crop (Native Upload)
+// Called when user clicks "Upload New" in the Library modal
+window.triggerNativeUpload = function() {
+    window.closeLibrary();
+    
+    if (currentTargetId === 'NEW') {
+        document.getElementById('new-item-file').click();
     } else {
-        alert("CropManager is missing!");
+        // Trigger the Cropper logic for existing item
+        if (typeof CropManager !== 'undefined') {
+            CropManager.trigger(currentTargetId);
+        }
     }
 };
 
@@ -193,6 +212,7 @@ window.cancelEdit = function(id) {
 window.saveInlineEdit = async function(id) {
     const nameVal = document.getElementById(`name-${id}`).innerText.trim();
     const priceVal = document.getElementById(`price-${id}`).innerText.trim();
+    // Get image URL from hidden input (updated by Library or Cropper)
     const imgUrl = document.getElementById(`img-${id}`).value;
     
     if (!nameVal || !priceVal) {
@@ -206,14 +226,10 @@ window.saveInlineEdit = async function(id) {
         price: priceVal,
         description: document.getElementById(`desc-${id}`).innerText.trim(),
         category: document.getElementById(`cat-edit-${id}`).value,
-        imageUrl: imgUrl, // <--- Send the new cropped image URL    
+        imageUrl: imgUrl, 
     };
 
     const success = await API.put(`${CONFIG.MENU_URL}/${id}`, updatedItem);
-    
-    // If API.post only handles POST, you might need a specific PUT:
-    // const res = await fetch(`${CONFIG.MENU_URL}/${id}`, { method: 'PUT', ... })
-    // For this example, assuming API.post sends JSON correctly:
     
     if (success) {
         // Update local state to match
@@ -230,6 +246,8 @@ window.saveInlineEdit = async function(id) {
 
 // E. Delete Item
 window.deleteItem = async function(id) {
+    if (!confirm("Are you sure you want to delete this item?")) return;
+    
     const success = await API.delete(CONFIG.MENU_URL, id);
     if (success) {
         // Remove from local data
@@ -240,7 +258,7 @@ window.deleteItem = async function(id) {
     }
 };
 
-// --- 4. NEW ITEM CREATION ---
+// --- 4. NEW ITEM CREATION (Corrected HTML Structure) ---
 
 window.createNewCard = function() {
     // Prevent multiple creation rows
@@ -252,14 +270,15 @@ window.createNewCard = function() {
     div.id = 'new-card-container';
     div.style.background = "#fff9e6"; // Light yellow to indicate "Draft"
 
-    // We construct the HTML to match the CSS Grid columns:
+    // We construct the HTML to match the CSS Grid columns exactly:
     // 1. Img | 2. Name | 3. Desc | 4. Cat | 5. Price | 6. Actions
     div.innerHTML = `
-        <label class="card-img" style="cursor:pointer; background:#eee; display:flex; align-items:center; justify-content:center; border:1px dashed #222;">
-            <span style="font-size:1.2rem;">+</span>
-            <input type="file" id="new-item-file" style="display:none;" accept="image/*">
+        <div class="card-img" onclick="window.openLibrary('NEW')" 
+             style="cursor:pointer; background:#eee; display:flex; align-items:center; justify-content:center; border:1px dashed #222;">
             <img id="new-img-preview" style="width:100%; height:100%; object-fit:cover; display:none;">
-        </label>
+            <span id="new-plus-sign" style="font-size:1.2rem;">+</span>
+        </div>
+        <input type="file" id="new-item-file" style="display:none;" accept="image/*">
 
         <div class="card-title" contenteditable="true" id="new-name" 
              style="border-bottom:1px dashed #999; color:#444;">Item Name...</div>
@@ -278,8 +297,8 @@ window.createNewCard = function() {
              style="border-bottom:1px dashed #999;">0.00</div>
 
         <div class="card-actions" style="display:flex; gap:5px;">
-            <button class="btn btn-primary" onclick="window.saveNewItem()" style="font-size:0.7rem;">SAVE</button>
-            <button class="btn btn-danger" onclick="window.cancelNewItem()" style="font-size:0.7rem;">X</button>
+            <button class="btn btn-primary" onclick="window.saveNewItem()" style="font-size:0.7rem;">CREATE</button>
+            <button class="btn btn-danger" onclick="window.cancelNewItem()" style="font-size:0.7rem;">CANCEL</button>
         </div>
     `;
 
@@ -289,14 +308,14 @@ window.createNewCard = function() {
     // Auto-focus the name
     document.getElementById('new-name').focus();
     
-    // Handle Image Preview
+    // Handle Image Preview (if manual file upload used instead of library)
     document.getElementById('new-item-file').addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const url = URL.createObjectURL(e.target.files[0]);
             const img = document.getElementById('new-img-preview');
             img.src = url;
             img.style.display = 'block';
-            this.previousElementSibling.style.display = 'none'; // Hide the "+" sign
+            if (img.nextElementSibling) img.nextElementSibling.style.display = 'none'; // Hide "+"
         }
     });
 };
@@ -311,6 +330,7 @@ window.saveNewItem = async function() {
     const priceVal = document.getElementById('new-price').innerText;
     const catVal = document.getElementById('new-cat').value;
     const fileInput = document.getElementById('new-item-file');
+    const imgPreview = document.getElementById('new-img-preview');
 
     if (nameVal === "Item Name..." || !nameVal.trim()) {
         alert("Please enter a name."); return;
@@ -321,8 +341,12 @@ window.saveNewItem = async function() {
 
     let finalImageUrl = "";
 
-    // 1. Upload Image if exists
-    if (fileInput.files.length > 0) {
+    // 1. Check if they picked from Library
+    if (imgPreview.dataset.value) {
+        finalImageUrl = imgPreview.dataset.value;
+    }
+    // 2. Check if they Uploaded a File
+    else if (fileInput.files.length > 0) {
         try {
             // Using API.upload from utils.js
             finalImageUrl = await API.upload(fileInput.files[0], nameVal);
@@ -339,7 +363,6 @@ window.saveNewItem = async function() {
         price: priceVal.trim(),
         category: catVal,
         imageUrl: finalImageUrl,
-        image: finalImageUrl
     };
 
     // 3. Send to API
@@ -349,5 +372,76 @@ window.saveNewItem = async function() {
         window.cancelNewItem();
         loadMenuItems(); // Refresh grid
         alert("Item Created!");
+    }
+};
+
+// --- 5. MEDIA LIBRARY LOGIC ---
+
+window.openLibrary = function(id = null) {
+    currentTargetId = id; // Remember who called us (ID or 'NEW')
+    
+    const modal = document.getElementById('existing-images');
+    const grid = document.getElementById('library-grid');
+    
+    // 1. Harvest Unique Images from current menu data
+    // (We use a Set to remove duplicates)
+    const uniqueImages = [...new Set(menuState.data.map(item => item.imageUrl))].filter(url => url && url.length > 5);
+
+    // 2. Build the Grid
+    grid.innerHTML = '';
+    
+    if (uniqueImages.length === 0) {
+        grid.innerHTML = '<p style="padding:20px; color:#666;">No existing images found.</p>';
+    } else {
+        uniqueImages.forEach(url => {
+            const div = document.createElement('div');
+            div.className = 'library-thumb';
+            div.onclick = () => window.selectLibraryImage(url);
+            
+            // Try to extract a clean filename for display
+            const filename = url.split('/').pop().split('?')[0].substring(0, 15);
+            
+            div.innerHTML = `
+                <img src="${url}" loading="lazy">
+                <span>${filename}...</span>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    // 3. Show Modal
+    modal.style.display = 'flex';
+};
+
+window.closeLibrary = function() {
+    document.getElementById('existing-images').style.display = 'none';
+};
+
+window.selectLibraryImage = function(url) {
+    // 1. Close Modal
+    window.closeLibrary();
+
+    // 2. Apply Image based on context
+    if (currentTargetId === 'NEW') {
+        // We are creating a NEW card
+        const imgPreview = document.getElementById('new-img-preview');
+        const plusSign = document.getElementById('new-plus-sign');
+        
+        // Update New Card UI
+        imgPreview.src = url;
+        imgPreview.style.display = 'block';
+        imgPreview.dataset.value = url; // Store URL for saving
+        if(plusSign) plusSign.style.display = 'none';
+        
+    } else {
+        // We are editing an EXISTING item (ID is a number)
+        const imgTag = document.querySelector(`.card[data-id="${currentTargetId}"] .card-img`);
+        const hiddenInput = document.getElementById(`img-${currentTargetId}`);
+
+        if (imgTag) imgTag.src = url;
+        if (hiddenInput) hiddenInput.value = url;
+
+        // Trigger the "Save/Cancel" UI
+        window.startEdit(currentTargetId);
     }
 };

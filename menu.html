@@ -70,6 +70,25 @@
         </div>
     </div>
 </div>
+
+<div id="existing-images" class="modal">
+    <div class="cropper-modal-box" style="width: 100%; max-width: 800px;">
+        <h3 class="modal-title">📂 Image Library</h3>
+        
+        <div class="library-scroll-area">
+            <div id="library-grid" class="library-grid">
+                </div>
+        </div>
+
+        <div class="modal-actions" style="justify-content: space-between;">
+            <button onclick="window.closeLibrary()" class="btn btn-outline">Cancel</button>
+            <button onclick="window.triggerNativeUpload()" class="btn btn-primary">
+                ⬆ Upload New from Device
+            </button>
+        </div>
+    </div>
+</div>
+
 <input type="file" id="item-image-file" style="display:none;" accept="image/*">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>

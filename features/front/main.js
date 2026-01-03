@@ -1,3 +1,14 @@
+// --- AUTH GUARD ---
+let authorized = false;
+
+(function checkAuth() {
+    const token = localStorage.getItem('authToken');
+    
+    if (token) {
+        authorized = true;
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Wait for check
     await CONFIG.init;
@@ -127,9 +138,19 @@ async function loadFrontMenu() {
                 // Create the DOM element manually so we can add Event Listeners
                 const card = document.createElement('div');
                 card.className = `menu-card ${index === 0 ? 'active-item' : ''}`;
-                
+
+                let unchecked = true;
+
+                const stockState = unchecked ? 'Out of Stock' : 'In stock';
+
                 // New "Revamped" Layout Structure
                 card.innerHTML = `
+                    <div class="checkbox-wrapper-2" id="show-${authorized}">
+                        <h3>${stockState}</h3>
+                        <input type="checkbox" class="sc-gJwTLC ikxBAC"
+                            ${unchecked ? 'checked' : ''}
+                            onchange="window.toggleStock(${item.id}, this.checked)">
+                    </div>
                     <div class="mobile-thumb"><img src="${imgUrl}" alt="${item.name}"></div>
                     <div class="card-details">
                         <div class="card-header-row">

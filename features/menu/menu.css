@@ -372,9 +372,11 @@ h1 a {
 .menu-grid.hide-desc  .view-desc  { display: none !important; }
 
 /* =========================================
-   6. MODAL FIX (CROPPER)
+   6. MODALS (SHARED STYLES)
    ========================================= */
-#cropper-modal {
+/* Applies to both the Cropper and the Media Library to ensure they float correctly */
+#cropper-modal, 
+#existing-images {
     /* 1. Lock to the screen, ignoring scroll position */
     position: fixed; 
     top: 0; 
@@ -395,7 +397,9 @@ h1 a {
 /* CRITICAL: Javascript often sets "display: block" which breaks centering. 
    This forces it back to Flexbox so it stays centered. */
 #cropper-modal[style*="display: block"],
-#cropper-modal[style*="display:block"] {
+#cropper-modal[style*="display:block"],
+#existing-images[style*="display: block"],
+#existing-images[style*="display:block"] {
     display: flex !important;
 }
 
@@ -405,7 +409,8 @@ h1 a {
     border: 2px solid var(--text-ink);
     box-shadow: 15px 15px 0px rgba(0,0,0,0.15); /* Matches your theme */
     width: 100%;
-    max-width: 600px; /* Prevents it from being too wide */
+    /* Max width handled in HTML */
+    display: flex; flex-direction: column;
 }
 
 .modal-actions {
@@ -413,4 +418,55 @@ h1 a {
     justify-content: flex-end;
     gap: 15px;
     margin-top: 20px;
+}
+
+/* --- MEDIA LIBRARY SPECIFIC STYLES --- */
+.library-scroll-area {
+    height: 400px;
+    overflow-y: auto;
+    background: #f4f4f4;
+    border-bottom: 2px solid var(--text-ink);
+    padding: 15px;
+}
+
+.library-grid {
+    display: grid;
+    /* Auto-fill thumbnails */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.library-thumb {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    background: #fff;
+    transition: all 0.2s;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.library-thumb img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Hover Effect */
+.library-thumb:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+}
+
+.library-thumb span {
+    display: block;
+    font-size: 0.7rem;
+    padding: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    background: #fff;
+    border-top: 1px solid #eee;
 }
