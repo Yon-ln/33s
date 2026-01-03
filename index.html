@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>33's The Old Grocery Store</title>
-    <link rel="stylesheet" href="style.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Playfair+Display:wght@700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <link rel="icon" type="image/x-icon" href="Logo.png">
+    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="features/front/main.css">
+    
+    <link rel="icon" type="image/x-icon" href="BrowserLogo.png">
 </head>
 <body>
 
     <header id="main-header">
         <div class="header-inner">
             <div class="logo-area">
-                <a href="admin.html"><img src="Logo.png" alt="33's Logo"></a>
+                <a href="login.html" id="logo-login"><img src="Logo.png" alt="33's Logo"></a>
             </div>
             
             <nav id="top-nav">
@@ -27,7 +29,7 @@
                 <a href="#reservations" class="nav-link">RESERVATIONS</a>
                 <a href="#contact" class="nav-link">CONTACT</a>
             </nav>
-            <div id="mobile-toggle"><span></span><span></span><span></span></div>
+            <div id="mobile-toggle"></div>
         </div>
     </header>
 
@@ -38,12 +40,13 @@
             <h2 class="hero-title">WELCOME TO YOUR<br>NEIGHBORHOOD SPOT</h2>
             <a href="#menu-section" class="btn-hero">VIEW OUR MENU</a>
         </div>
+        
         <div class="social-floater left-floater">
-            <div class="floater-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User"><span class="icon-badge">📷</span></div>
-            <div class="floater-text"><span class="tiny-label">Instagram</span><p><strong>martini_lover:</strong> Best martini in town! 🍸</p></div>
+            <div class="floater-avatar"><img src="emilio.png" alt="User"><span class="icon-badge">📷</span></div>
+            <div class="floater-text"><span class="tiny-label">Instagram</span><p><strong>negroni_lover:</strong> Best negronis in in town! 🥃</p></div>
         </div>
         <div class="social-floater right-floater">
-            <div class="floater-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User"><span class="icon-badge">🎵</span></div>
+            <div class="floater-avatar"><img src="mario.png" alt="User"><span class="icon-badge">🎵</span></div>
             <div class="floater-text"><span class="tiny-label">Live Music</span><p><strong>Jazz_fan:</strong> Love the jazz vibe.</p></div>
         </div>
     </div>
@@ -51,7 +54,7 @@
     <main id="main-content">
         <div id="menu-section" class="content-wrapper">
             <div class="section-title-center">
-                <h3>OUR PROVISIONS</h3>
+                <h3>OUR MENU</h3>
             </div>
 
             <nav class="desktop-tabs">
@@ -66,15 +69,12 @@
             </nav>
 
             <div id="menu-display-area">
-                
                 <div class="category-wrapper">
                     <button class="mobile-accordion-header" data-target="brunch">BRUNCH <span class="arrow">▼</span></button>
                     <div id="brunch" class="menu-category-container active-category">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Brunch">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Brunch"></div>
                         </div>
                     </div>
                 </div>
@@ -84,9 +84,7 @@
                     <div id="cocktails" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Cocktails">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Cocktails"></div>
                         </div>
                     </div>
                 </div>
@@ -96,9 +94,7 @@
                     <div id="wines" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src=" " alt="Wines">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Wines"></div>
                         </div>
                     </div>
                 </div>
@@ -108,9 +104,7 @@
                     <div id="beers" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Beers">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Beers"></div>
                         </div>
                     </div>
                 </div>
@@ -120,49 +114,40 @@
                     <div id="dinner" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Dinner">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Dinner"></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="category-wrapper">
+                
+                 <div class="category-wrapper">
                     <button class="mobile-accordion-header" data-target="softs">SOFTS <span class="arrow">▼</span></button>
                     <div id="softs" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Soft Drinks">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Softs"></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="category-wrapper">
+                
+                 <div class="category-wrapper">
                     <button class="mobile-accordion-header" data-target="coffee">COFFEE <span class="arrow">▼</span></button>
                     <div id="coffee" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Coffee">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Coffee"></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="category-wrapper">
+                
+                 <div class="category-wrapper">
                     <button class="mobile-accordion-header" data-target="pastries">PASTRIES <span class="arrow">▼</span></button>
                     <div id="pastries" class="menu-category-container">
                         <div class="desktop-split-view">
                             <div class="menu-list-side"></div>
-                            <div class="menu-image-side">
-                                <img src="" alt="Pastries">
-                            </div>
+                            <div class="menu-image-side"><img src="" alt="Pastries"></div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -187,7 +172,6 @@
                 </div>
             </div>
         </section>
-
     </main>
 
     <footer id="main-footer">
@@ -196,8 +180,7 @@
         <div class="footer-column"><h5>SOCIAL</h5><div class="social-links"><a href="#">Instagram</a><a href="#">Facebook</a></div></div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
-    <script src="func.js" defer></script>
+    <script src="assets/components/common.js" defer></script>
+    <script src="features/front/main.js" defer></script>
 </body>
 </html>
-

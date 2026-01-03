@@ -1,0 +1,54 @@
+/* --- HERO BANNER COMPONENT --- */
+.hero-banner {
+    position: relative;
+    max-width: 70vh;
+    height: 40vh;
+    border: 1px solid;
+    border-radius: 0.25em;
+    overflow: hidden; /* Ensure images don't bleed out */
+}
+
+.hero-h1 {
+    position: absolute;
+    z-index: 2;
+    color: white;
+    margin-left: 10px;
+    font-size: 30px;
+    font-family: var(--font-body); 
+    font-weight: normal;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.5); /* Added text shadow for visibility */
+}
+
+.hero-img {
+    position: absolute;
+    top: 0; left: 0;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.hero-img.active {
+    opacity: 1;
+}
+
+.cycle-button {
+    border-radius: 100%;
+    aspect-ratio: 1;
+    width: 35px; /* Added px unit */
+    
+    position: absolute;
+    z-index: 10; /* Increased Z-index to sit above images */
+    right: 10px;
+    
+    top: 50%; 
+    transform: translateY(-50%);
+    
+    border: 1.75px solid #555555;
+    background-color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

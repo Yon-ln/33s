@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login | 33s</title>
+    <link rel="stylesheet" href="assets/css/common.css">
+    <style>
+        /* Specific Styles for Login to center it on the grid */
+        body {
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh;
+        }
+        .login-card {
+            background: #fff;
+            border: 2px solid var(--text-ink);
+            padding: 40px;
+            width: 100%; max-width: 400px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-card h2 {
+            font-family: 'Helvetica Neue', sans-serif;
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 30px; border-bottom: 2px solid var(--text-ink);
+            padding-bottom: 15px;
+        }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label {
+            display: block; font-size: 0.8rem; font-weight: bold;
+            text-transform: uppercase; margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%; padding: 12px;
+            border: 2px solid var(--text-ink);
+            font-family: 'Courier New', monospace; /* Tech feel */
+            font-size: 1rem; outline: none;
+            box-sizing: border-box; /* Fixes padding width issues */
+        }
+        .input-group input:focus { border-color: var(--accent); background: #fffdf0; }
+        .btn-login {
+            width: 100%; padding: 15px;
+            background: var(--text-ink); color: #fff;
+            font-weight: bold; text-transform: uppercase;
+            border: none; cursor: pointer; letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .btn-login:hover { background: var(--accent); }
+        .error-msg {
+            color: #d33; font-size: 0.8rem; margin-top: 15px; display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>Staff Access</h2>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit" class="btn-login">Unlock System</button>
+        <p class="error-msg" id="login-error">Invalid Credentials</p>
+    </form>
+    <br>
+    <a href="/" style="font-size:0.8rem; color:#666;">← Back to Shop</a>
+</div>
+
+<script src="assets/components/common.js"></script>
+<script>
+    async function handleLogin(e) {
+        e.preventDefault(); // Stop the page from reloading
+        
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const errorMsg = document.getElementById('login-error');
+
+        // Reset error message
+        errorMsg.style.display = 'none';
+
+        try {
+            // 1. Send credentials to your specific API Endpoint
+            const response = await fetch(`${CONFIG.API_BASE}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: user, password: pass }) 
+                // Note: Ensure 'name' matches your C# loginRequest DTO property Name
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // 2. SAFETY CHECK: ASP.NET usually sends camelCase ("token"), 
+                // but sometimes PascalCase ("Token"). This handles both.
+                const token = data.token || data.Token;
+
+                if (!token) {
+                    throw new Error("Server did not send a token.");
+                }
+
+                // 3. SAVE THE STAMP (Token) & USER INFO
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('userName', data.name || data.Name);
+                localStorage.setItem('userRole', data.permissionLevel || data.PermissionLevel);
+
+                // 4. REDIRECT to the Menu Manager
+                window.location.href = 'menu.html';
+            } else {
+                // Login failed (401 Unauthorized)
+                const errorText = await response.text();
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = errorText || "Access Denied: Incorrect Credentials";
+            }
+        } catch (err) {
+            console.error(err);
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = "Connection Error: Is the backend running?";
+        }
+    }
+</script>
+
+</body>
+</html>

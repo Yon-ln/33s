@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Admin | 33s The Old Grocery Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="features/menu/menu.css">
+
+    <link rel="icon" type="image/x-icon" href="BrowserLogo.png">
+
+</head>
+<body>
+
+<div class="grid-background"></div>
+
+<div class="container relative-layer">
+    <header>
+        <div class="header-left">
+            <h1><a href="/">◀ Home</a> Menu Manager <a href="hero.html">Hero ▶</a></h1>
+        </div>
+        <button class="btn btn-primary" onclick="window.createNewCard()">+ Add New Item</button>
+    </header>
+
+    <div id="control-bar">
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchBar" placeholder="Search items...">
+        </div>
+
+        <div class="controls-right">
+            <div class="view-switcher">
+                <button class="btn-icon active" id="btn-view-list" onclick="switchView('list')" title="List View">
+                    ☰
+                </button>
+                <button class="btn-icon" id="btn-view-grid" onclick="switchView('grid')" title="Grid View">
+                    ▤
+                </button>
+            </div>
+
+            <div class="dropdown-container">
+                <button class="btn btn-outline" id="toggle-filter-menu" onclick="toggleFilterMenu()">
+                    👁 Columns ▾
+                </button>
+                <div id="filter-dropdown-menu" class="filter-popup">
+                    <div class="filter-header">Visible Columns</div>
+                    <label class="filter-row"><span>Image</span><input type="checkbox" class="view-toggle" data-toggle="hide-img" checked></label>
+                    <label class="filter-row"><span>Name</span><input type="checkbox" class="view-toggle" data-toggle="hide-name" checked></label>
+                    <label class="filter-row"><span>Desc</span><input type="checkbox" class="view-toggle" data-toggle="hide-desc" checked></label>
+                    <label class="filter-row"><span>Price</span><input type="checkbox" class="view-toggle" data-toggle="hide-price" checked></label>
+                    <label class="filter-row"><span>Category</span><input type="checkbox" class="view-toggle" data-toggle="hide-cat" checked></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-grid" class="menu-grid list-mode">
+        </div>
+</div>
+
+<div id="cropper-modal" class="modal">
+    <div class="cropper-modal-box">
+        <div style="height: 400px; width: 100%; background: #000;">
+            <img id="image-to-crop" style="max-width:100%; display:block;">
+        </div>
+        <div class="modal-actions">
+            <button onclick="document.getElementById('cropper-modal').style.display='none'" class="btn btn-outline">Cancel</button>
+            <button id="btn-crop-confirm" class="btn btn-primary">✔ Crop</button>
+        </div>
+    </div>
+</div>
+<input type="file" id="item-image-file" style="display:none;" accept="image/*">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="assets/components/common.js" defer></script>
+<script src="assets/components/crop.js" defer></script> 
+<script src="features/menu/menu.js" defer></script>
+
+<script>
+    // --- UI INTERACTION SCRIPTS ---
+
+    function toggleFilterMenu() {
+        document.getElementById('filter-dropdown-menu').classList.toggle('active');
+    }
+
+    // Switch between Clipboard (List) and Cards (Grid)
+    function switchView(mode) {
+        const grid = document.getElementById('admin-grid');
+        const btnList = document.getElementById('btn-view-list');
+        const btnGrid = document.getElementById('btn-view-grid');
+
+        if (mode === 'list') {
+            grid.classList.add('list-mode');
+            grid.classList.remove('grid-mode');
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+        } else {
+            grid.classList.add('grid-mode');
+            grid.classList.remove('list-mode');
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+        }
+    }
+
+    // Close menus on outside click
+    document.addEventListener('click', function(event) {
+        if (!document.querySelector('.dropdown-container').contains(event.target)) {
+            document.getElementById('filter-dropdown-menu').classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>

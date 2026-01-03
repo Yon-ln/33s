@@ -1,0 +1,416 @@
+/* =========================================
+   1. VARIABLES & BACKGROUND
+   ========================================= */
+:root {
+    --text-ink: #222;
+    --bg-paper: #fdfbf7;
+    --accent: #d4af37;
+    --grid-color: rgba(0, 0, 0, 0.06);
+    --grid-size: 40px;
+}
+
+body {
+    background-color: var(--bg-paper);
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    background-position: center top; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--text-ink);
+    padding: 20px;
+    margin: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* =========================================
+   2. HEADER & CONTROL BAR
+   ========================================= */
+header {
+    background: #fff;
+    border: 2px solid var(--text-ink);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.1); 
+    margin-bottom: 30px;
+    flex-wrap: wrap; 
+    gap: 10px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+h1 a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    color: #666;
+    vertical-align: middle;
+}
+
+/* Control Bar */
+#control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.controls-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+}
+
+#searchBar {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 2px solid var(--text-ink);
+    font-size: 0.95rem;
+    outline: none;
+    background: #fff;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+}
+
+#searchBar:focus {
+    border-color: var(--accent);
+    box-shadow: 3px 3px 0px var(--accent);
+}
+
+/* View Switcher */
+.view-switcher { display: flex; gap: 5px; }
+.btn-icon {
+    background: #fff; border: 2px solid var(--text-ink); width: 40px; height: 40px;
+    cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { background: #eee; }
+.btn-icon.active { background: var(--text-ink); color: #fff; }
+
+/* Filter Dropdown */
+.dropdown-container { position: relative; }
+.filter-popup {
+    display: none; position: absolute; top: 120%; right: 0; width: 200px;
+    background: #fff; border: 2px solid var(--text-ink); z-index: 100;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+}
+.filter-popup.active { display: block; }
+.filter-header { background: var(--text-ink); color: #fff; padding: 8px 15px; font-weight: bold; font-size: 0.8rem; }
+.filter-row { display: flex; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #eee; font-size: 0.9rem; cursor: pointer; }
+.filter-row:hover { background: #fafafa; }
+
+/* Generic Buttons */
+.btn { 
+    border: 2px solid var(--text-ink); background: transparent; padding: 8px 16px; 
+    font-weight: bold; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; 
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.1); white-space: nowrap;
+}
+.btn-primary { background: var(--text-ink); color: #fff; }
+.btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+.btn-outline { background: #fff; }
+.btn-outline:hover { background: var(--text-ink); color: #fff; }
+.btn-danger { color: #d33; border-color: #d33; }
+.btn-danger:hover { background: #d33; color: white; }
+
+/* =========================================
+   3. LIST MODE (The "Clipboard")
+   ========================================= */
+.menu-grid.list-mode {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1100px; 
+    margin: 0 auto;
+    
+    background: #fff;
+    border: 2px solid var(--text-ink);
+    border-top: 10px solid var(--text-ink); 
+    box-shadow: 10px 10px 0px rgba(0,0,0,0.1); 
+}
+
+.menu-grid.list-mode .card {
+    display: grid;
+    /* DESKTOP GRID COLUMNS:
+       Img | Name (1.5x space) | Description (2x space) | Cat | Price | Action
+    */
+    grid-template-columns: 60px 1.5fr 2fr 110px 90px 70px;
+    
+    /* Forces strict single row layout to prevent items floating to new lines */
+    grid-template-rows: auto;
+    
+    /* The master switch for vertical centering */
+    align-items: center; 
+    
+    gap: 20px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.menu-grid.list-mode .card:hover { background-color: rgba(212, 175, 55, 0.05); }
+
+/* --- UNBOXING WRAPPERS --- */
+/* Critical: Removes the div containers so Grid controls the text directly */
+.menu-grid.list-mode .card-body,
+.menu-grid.list-mode .card-header {
+    display: contents; 
+}
+
+/* --- VERTICAL CENTERING & MARGIN KILLER --- */
+/* Removes default browser margins that push text up/down */
+.menu-grid.list-mode h3, 
+.menu-grid.list-mode p,
+.menu-grid.list-mode span {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3; 
+}
+
+/* --- COLUMN STYLING --- */
+
+/* 1. Image */
+.menu-grid.list-mode .card-img {
+    grid-column: 1; grid-row: 1; /* Force to Row 1 */
+    width: 50px; height: 50px;
+    border-radius: 4px; border: 1px solid #ccc;
+    object-fit: cover;
+    align-self: center; /* Vertical Center */
+}
+
+/* 2. Name */
+.menu-grid.list-mode .card-title {
+    grid-column: 2; grid-row: 1; /* Force to Row 1 */
+    font-size: 1rem; font-weight: 800;
+    align-self: center; /* Vertical Center */
+    
+    /* Text Wrapping Enabled */
+    white-space: normal; 
+    word-break: break-word;
+}
+
+/* 3. Description */
+.menu-grid.list-mode .card-desc {
+    grid-column: 3; grid-row: 1; /* Force to Row 1 */
+    font-size: 0.85rem; color: #777;
+    align-self: center; /* Vertical Center */
+    
+    /* Text Wrapping Enabled */
+    white-space: normal; 
+    word-break: break-word;
+    display: block; 
+}
+
+/* 4. Category */
+.menu-grid.list-mode .view-cat, 
+.menu-grid.list-mode .list-cat-wrapper {
+    grid-column: 4; grid-row: 1; /* Force to Row 1 */
+    text-align: center;
+    align-self: center;
+}
+.menu-grid.list-mode .card-cat-display {
+    background: #f0f0f0; padding: 4px 8px; border-radius: 4px; 
+    font-size: 0.7rem; border: 1px solid #ddd; display: inline-block;
+}
+
+/* 5. Price */
+.menu-grid.list-mode .card-price {
+    grid-column: 5; grid-row: 1; /* Force to Row 1 */
+    font-family: 'Courier New', monospace; font-weight: bold;
+    text-align: right; font-size: 1.1rem;
+    align-self: center;
+}
+
+/* 6. Actions */
+.menu-grid.list-mode .card-actions,
+.menu-grid.list-mode .inline-actions {
+    grid-column: 6; grid-row: 1; /* Force to Row 1 */
+    margin: 0; padding: 0; border: none;
+    justify-content: flex-end; display: flex;
+    align-self: center;
+}
+
+/* Button size in list */
+.menu-grid.list-mode .btn {
+    padding: 4px 8px; font-size: 0.7rem; box-shadow: none; border: 1px solid #000;
+}
+.menu-grid.list-mode .btn:hover { background: #000; color: #fff; }
+.menu-grid.list-mode .upload-placeholder { display: none; }
+
+
+/* =========================================
+   4. MOBILE RESPONSIVE (WRAPPING)
+   ========================================= */
+/* Since you hate scrolling, we switch to a stacked layout on small screens */
+@media (max-width: 800px) {
+    .menu-grid.list-mode .card {
+        /* Change grid to 3 columns: Img | Name/Price | Action */
+        grid-template-columns: 60px 1fr auto; 
+        grid-template-rows: auto auto auto; /* Explicit rows for wrapping */
+        row-gap: 5px; /* Tight gap */
+    }
+
+    /* RE-MAPPING FOR MOBILE WRAP */
+    
+    /* Row 1: Image, Name, Price */
+    .menu-grid.list-mode .card-img   { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
+    
+    .menu-grid.list-mode .card-title { 
+        grid-column: 2; grid-row: 1; 
+        align-self: end; /* Align to bottom of cell */
+        font-size: 1rem;
+    }
+    
+    .menu-grid.list-mode .card-price { 
+        grid-column: 3; grid-row: 1; 
+        align-self: center;
+    }
+
+    /* Row 2: Description spans under Name */
+    .menu-grid.list-mode .card-desc { 
+        grid-column: 2 / span 2; 
+        grid-row: 2; 
+        align-self: start;
+        margin-top: 2px !important;
+    }
+
+    /* Row 3: Category & Buttons */
+    .menu-grid.list-mode .view-cat,
+    .menu-grid.list-mode .list-cat-wrapper { 
+        grid-column: 2; grid-row: 3; text-align: left; 
+    }
+    
+    .menu-grid.list-mode .card-actions,
+    .menu-grid.list-mode .inline-actions { 
+        grid-column: 3; grid-row: 3; 
+    }
+}
+
+.menu-grid.list-mode select#new-cat {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100% !important;
+}
+
+.card.new-item-mode {
+    border: 2px dashed var(--accent);
+    animation: fadeIn 0.3s;
+}
+
+/* =========================================
+   5. GRID MODE (Tile View)
+   ========================================= */
+.menu-grid.grid-mode {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px; 
+}
+
+.menu-grid.grid-mode .card {
+    background: #fff; border: 2px solid var(--text-ink);
+    display: flex; flex-direction: column;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+.menu-grid.grid-mode .card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 10px 10px 0px var(--accent); border-color: var(--text-ink);
+}
+.menu-grid.grid-mode .card-img {
+    width: 100%; height: 200px; border-bottom: 2px solid var(--text-ink); object-fit: cover;
+}
+.menu-grid.grid-mode .card-body {
+    padding: 20px; display: flex; flex-direction: column; flex-grow: 1;
+}
+.menu-grid.grid-mode .card-header {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;
+}
+.menu-grid.grid-mode .card-title { font-size: 1.3rem; margin-bottom: 5px; }
+.menu-grid.grid-mode .card-desc { margin-bottom: 20px; line-height: 1.5; color: #555; font-size: 0.9rem; }
+.menu-grid.grid-mode .card-price {
+    font-family: 'Courier New', monospace; background: #f4f4f4; padding: 2px 5px; font-weight: bold;
+}
+.menu-grid.grid-mode .list-cat-wrapper { margin-bottom: 10px; }
+.menu-grid.grid-mode .card-cat-display {
+    text-transform: uppercase; font-size: 0.7rem; font-weight: bold; 
+    background: var(--bg-paper); border: 1px solid #ccc; padding: 2px 6px;
+}
+.menu-grid.grid-mode .card-actions {
+    margin-top: auto; padding-top: 15px; border-top: 2px dotted #eee; display: flex; gap: 10px;
+}
+
+/* Filter Visibility Logic */
+.menu-grid.hide-img   .view-img   { display: none !important; }
+.menu-grid.hide-name  .view-name  { display: none !important; }
+.menu-grid.hide-price .view-price { display: none !important; }
+.menu-grid.hide-cat   .view-cat   { display: none !important; }
+.menu-grid.hide-desc  .view-desc  { display: none !important; }
+
+/* =========================================
+   6. MODAL FIX (CROPPER)
+   ========================================= */
+#cropper-modal {
+    /* 1. Lock to the screen, ignoring scroll position */
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    
+    /* 2. Visuals */
+    background: rgba(255, 255, 255, 0.95); /* High opacity to hide clutter */
+    z-index: 99999; /* Put it on top of EVERYTHING */
+    
+    /* 3. Centering Logic */
+    display: none; /* Default hidden */
+    align-items: center;
+    justify-content: center;
+}
+
+/* CRITICAL: Javascript often sets "display: block" which breaks centering. 
+   This forces it back to Flexbox so it stays centered. */
+#cropper-modal[style*="display: block"],
+#cropper-modal[style*="display:block"] {
+    display: flex !important;
+}
+
+.cropper-modal-box {
+    background: #fff;
+    padding: 20px;
+    border: 2px solid var(--text-ink);
+    box-shadow: 15px 15px 0px rgba(0,0,0,0.15); /* Matches your theme */
+    width: 100%;
+    max-width: 600px; /* Prevents it from being too wide */
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
